@@ -40,10 +40,10 @@ def        gn_neo4j_connect(uri, userName, passw, verbose):
         return graphDB_Driver;
         
         
-def               gndw_neo4j_metanode_add(graph_conn, nodename, node_attr_list, verbose):
+def               gndw_metarepo_metanode_add(graph_conn, nodename, node_attr_list, verbose):
     
     if (verbose > 0):      
-       print("gndw_neo4j_addnode: Adding new node name %s" % nodename)
+       print("gndw_metarepo_metanode_add: Adding new node name %s" % nodename)
     
     ####node attrlist format: attr1: attrname, attr2:
     with graph_conn.session() as grpDB_Ses:
@@ -55,18 +55,18 @@ def               gndw_neo4j_metanode_add(graph_conn, nodename, node_attr_list, 
             len = len + 1
        
        if (verbose > 1): 
-           print("gndw_neo4j_metanode_add: Verifying if node existig nnodes found:"+ str(len))
+           print("gndw_metarepo_metanode_add: Verifying if node existig nnodes found:"+ str(len))
    
        if (len == 0):
             ##### Create new tablenode  entity does not exist in db
             cqlqry = "CREATE (d:"+nodename+" {name:'"+nodename+"' , type:'TableNode'})"
             if (verbose > 1):
-                print("gndw_neo4j_meta_addnode: new meta CQLqry", cqlqry)
+                print("gndw_metarepo_metanode_add: new meta CQLqry", cqlqry)
             grpDB_Ses.run(cqlqry)
             
        else:
             if (verbose > 1):
-                print("gndw_ndeo4j_meta_tablenode_add: TableNode "+nodename+ " already exist")
+                print("gndw_metarepo_metanode_add: TableNode "+nodename+ " already exist")
        
        ##### Check TableAttrNodes exist 
        #attr_list {attr1: attrname, attr2: attrname, }
@@ -74,9 +74,9 @@ def               gndw_neo4j_metanode_add(graph_conn, nodename, node_attr_list, 
        for k, v in node_attr_list.items():
             #### K is attr
             if (verbose > 1):
-                print("gndw_neo4j_meta_tablenode_add: key "+k+"  attr:"+v)
+                print("gndw_metarepo_metanode_add: key "+k+"  attr:"+str(v))
             
-            attrname = v
+            attrname = str(v)
             
             ### Add new node for attribute
             cqlqry = "MATCH(x:"+attrname+" {name:'"+attrname+"', type:'TableAttrNode'}) return x"
@@ -90,13 +90,13 @@ def               gndw_neo4j_metanode_add(graph_conn, nodename, node_attr_list, 
                 #### TableAttrNode does not exist and add new node
                 cqlqry = "CREATE (d:"+attrname+" {name:'"+attrname+"' , type:'TableAttrNode'})"
                 if (verbose > 1):
-                    print("gndw_neo4j_meta_addnode: new meta CQLqry", cqlqry)
+                    print("gndw_metarepo_metadata_add: new qry to add TableAttrNode CQLqry:", cqlqry)
                     
                 grpDB_Ses.run(cqlqry)
                 
             else:
                 if (verbose > 1):
-                    print("gndw_neo4j_meta_addnode: existing attrnode "+attrname)
+                    print("gndw_metarepo_metadata_add: TableAttrNode:"+attrname+" exists")
             
             #### Now add relationship between tablenode and tablenodeattr
             cqledgeqry = "MATCH (d:"+nodename+" {name:'"+nodename+"'})-[r]-(a:"+attrname+" {name:'"+attrname+"'}) return TYPE(r), PROPERTIES(r)"        
@@ -111,31 +111,31 @@ def               gndw_neo4j_metanode_add(graph_conn, nodename, node_attr_list, 
                     kv = r.get(k)
                     rcount = kv
                     if (verbose > 1):
-                        print("gndw_neo4j_meta_addnode: relationship count key "+k+" val:"+str(kv))
+                        print("gndw_metarepo_metanode_add: HAS_ATTR relship count key "+k+" val:"+str(kv))
 
                     
             if (verbose > 1):    
-               print("gndw_neo4j_meta_addnode: Verifying if node has HAS_ATTR relationship length count is : "+str(rcount))
+               print("gndw_metarepo_metanode_add: TableAttrNode HAS_ATTR relship rcount: "+str(rcount))
             
             if (len == 0):
                 
                if (verbose > 1):
-                   print("gndw_neo4j_meta_addnode: Node relationship  is not present ")
+                   print("gndw_metarepo_metanode_add: TableAttrNode HAS_ATTR rel does not exist ")
     
                cqlrelins =  "MATCH (d:"+nodename+"), (p:"+attrname+") WHERE d.name ='"+nodename+"' AND p.name = '"+attrname+"' CREATE (d)-[:HAS_ATTR {count: 1}]->(p)"
 
-               if (verbose > 1):
-                   print("gndw_neo4j_addnode: associate HAS_ATTR relationship:")
+               if (verbose > 2):
+                   print("gndw_metarepo_metanode_add: TableAttrNode:"+attrname+" HAS_ATTR relship qry :")
                    print(cqlrelins)
                 
                grpDB_Ses.run(cqlrelins)
             
             else:
-                print("Node relationship with count:"+str(rcount))
+                print("gndw_metarepo_metanode_add: TableAttrNode HAS_ATTR relship already exists with rcount:"+str(rcount))
               
                 cqlrelins = "MATCH (x:"+nodename+" {name:'"+nodename+"'})-[r]->(y:"+attrname+" {name:'"+attrname+"'}) SET r.count="+str(rcount+1)+" RETURN r.count" 
-                if (verbose > 1):
-                    print("gndw_neo4j_addnode: update coun qry :"+cqlrelins)
+                if (verbose > 2):
+                    print("gndw_metarepo_metanode_add: TableAttrNode HAS_ATTR relship updating rcount qry:"+cqlrelins)
                 grpDB_Ses.run(cqlrelins)  
             
 
@@ -144,7 +144,7 @@ def               gndw_neo4j_metanode_add(graph_conn, nodename, node_attr_list, 
 #
 ########################
             
-def                gndw_metanode_add_api(node_name, node_attr_list, verbose):
+def                gndw_metarepo_metanode_add_api(node_name, node_attr_list, verbose):
     # Database Credentials
     uri = "bolt://172.17.0.4"
     userName = "neo4j"
@@ -157,10 +157,10 @@ def                gndw_metanode_add_api(node_name, node_attr_list, verbose):
     
 
     
-    gndw_neo4j_metanode_add(graph_conn, node_name, node_attr_list, verbose)
+    gndw_metarepo_metanode_add(graph_conn, node_name, node_attr_list, verbose)
     
     if (verbose > 1):
-        print("gndw_neo4j_db: Meta nodes are added")
+        print("gndw_metarepo_metanode_add: Meta node "+node_name+" and attributes are added to metarepo")
     
     return ret;
   
@@ -170,7 +170,7 @@ def                gndw_metanode_add_api(node_name, node_attr_list, verbose):
 def                 gndw_datarepo_datanode_add(graph_conn, nodename, node_attr_list, datanode_name_inp, datanode_attr_list, verbose):
     
     if (verbose > 1):          
-        print("gndw_datarepo_datanode_add: Adding new node name %s" % nodename)
+        print("gndw_datarepo_datanode_add: Adding new DataNode name %s" % nodename)
     
     ####node attrlist format: attr1: attrname, attr2:
     with graph_conn.session() as grpDB_Ses:
@@ -186,17 +186,21 @@ def                 gndw_datarepo_datanode_add(graph_conn, nodename, node_attr_l
        if (len == 0):
             ##### Create new tablenode on datarepo  entity does not exist in db
             cqlqry = "CREATE (d:"+nodename+" {name:'"+nodename+"' , type:'TableNode'})"
-            if (verbose > 1):
-                print("gndw_datarepo_datanode_add: new meta CQLqry", cqlqry)
+            if (verbose > 2):
+                print("gndw_datarepo_datanode_add: Add new metanode to Data Repo CQLqry:", cqlqry)
             grpDB_Ses.run(cqlqry)
        else:
             if (verbose > 1):
-                print("gndw_datarepo_datanode_add: TableNode "+nodename+ " already exist")
+                print("gndw_datarepo_datanode_add: MetaTableNode "+nodename+ " already exist in datarepo ")
 
        datanode_name = datanode_name_inp.replace(" ", '')
        #### Verify that the datnode  exist first
        cqlqry = "MATCH(x:"+datanode_name+" {name:'"+datanode_name+"', type:'TableDataNode'}) return x"
-    
+
+       if (verbose > 2):
+           print("gndw_datarepo_datanode_add: Checking if datanode "+datanode_name+" exists CQLqry:", cqlqry)
+
+       
        nodes = grpDB_Ses.run(cqlqry)
        len = 0
     
@@ -213,23 +217,23 @@ def                 gndw_datarepo_datanode_add(graph_conn, nodename, node_attr_l
                 if (i > 0):
                     alist += ", "
                 attrname = k
-                alist += "'"+k+"':'"+str(v)+"'"
+                alist += ""+k+":'"+str(v)+"'"
                 i = i+1            
         
         
             if (verbose > 1):
-                print('gndw_datarepo_datanode_add: Adding data attribute list '+alist)
+                print('gndw_datarepo_datanode_add: Prepared DataNode attribute list '+alist)
             ##### Create new tablenode  entity does not exist in db
             cqlqry = "CREATE (d:"+datanode_name+" {name:'"+datanode_name+"' , type:'TableDataNode', "+alist+"})"
                 
                 
-            if (verbose > 1):
-                print("gndw_datarepo_datanode_add: new meta CQLqry", cqlqry)
+            if (verbose > 2):
+                print("gndw_datarepo_datanode_add: Creating new DataNode"+datanode_name+" CQLqry:", cqlqry)
                 
             grpDB_Ses.run(cqlqry)
        else:
             if (verbose > 1):
-                print("gndw_datarepo_datanode_add: TableNode "+nodename+ " already exist")
+                print("gndw_datarepo_datanode_add: DataNode "+datanode_name+ " already exist")
        
     
        #### Now add relationship between tablenode and tablenodeattr
@@ -243,39 +247,39 @@ def                 gndw_datarepo_datanode_add(graph_conn, nodename, node_attr_l
          for k in r.keys():
             kv = r.get(k)
             if (verbose > 1):
-               print("gndw_datarepo_datanode_add: relationship count key "+k+" val:"+str(kv))
+               print("gndw_datarepo_datanode_add: DataNode IS relship count key "+k+" val:"+str(kv))
             rcount = kv
          len = len + 1
     
     
        if (verbose > 1):
-           print("gndw_datarepo_datanode_add: IS relationship exist count : "+str(len)+ "  rcount: "+str(rcount))
+           print("gndw_datarepo_datanode_add: DataNode IS relationship exist count : "+str(len)+ "  rcount: "+str(rcount))
         
         
        if (len == 0):
                 
           if (verbose > 1):
-               print("gndw_datarepo_datanode_add: Node relationship  is not present ")
+               print("gndw_datarepo_datanode_add: DataNode:"+datanode_name+" IS relship  is not present ")
     
           cqlrelins =  "MATCH (d:"+nodename+"), (p:"+datanode_name+") WHERE d.name ='"+nodename+"' AND p.name = '"+datanode_name+"' CREATE (d)-[:IS {count: 1}]->(p)"
           
-          if (verbose > 1):
-             print("gndw_datarepo_datanode_add: associate HAS_ATTR relationship:")
+          if (verbose > 2):
+             print("gndw_datarepo_datanode_add: DataNode:"+datanode_name+" IS relship CypQry:")
              print(cqlrelins)
             
           grpDB_Ses.run(cqlrelins)
         
        else:
-          print("gndw_datarepo_datanode_add: Node relationship with count:"+str(rcount))
+          print("gndw_datarepo_datanode_add: DataNode IS relship exists  with rcount:"+str(rcount))
               
           cqlrelins = "MATCH (x:"+nodename+" {name:'"+nodename+"'})-[r]->(y:"+datanode_name+" {name:'"+datanode_name+"'}) SET r.count="+str(rcount+1)+" RETURN r.count" 
-          if (verbose > 1):
-              print("gndw_datarepo_datanode_add: update qry :"+cqlrelins)
+          if (verbose > 2):
+              print("gndw_datarepo_datanode_add: DataNode IS relship update qry :"+cqlrelins)
           grpDB_Ses.run(cqlrelins)  
     
     
 #####################################################################    
-def              gndw_datanode_add_api(node_name, node_attr_list, datanode_name, datanode_attr_list, verbose):
+def              gndw_datarepo_datanode_add_api(node_name, node_attr_list, datanode_name, datanode_attr_list, verbose):
     
     # Database Credentials
     uri = "bolt://172.17.0.6"
@@ -298,7 +302,7 @@ def              gndw_datanode_add_api(node_name, node_attr_list, datanode_name,
     
 if __name__ == '__main__':
    
-     verbose = 2
+     verbose = 3
     
      if( verbose > 0):
             print("gndw_module_start: Start the module")
@@ -307,7 +311,7 @@ if __name__ == '__main__':
      node_attr_list =  {'attr1': 'customerid ', 'attr2': 'custemail', 'attr3': 'addrline', 'attr4': 'city', 'attr5': 'state', 'attr6': 'country', 'attr7': 'zip', 'attr8': 'custphone'}
 
      ### Add new node       
-     ret = gndw_metanode_add_api(node_name, node_attr_list, verbose)
+     ret = gndw_metarepo_metanode_add_api(node_name, node_attr_list, verbose)
         
      if (verbose > 1):
         print("gndw_neo4j_db: metaadd node returned "+str(ret))
@@ -316,7 +320,7 @@ if __name__ == '__main__':
      #datanode_attr_list = {'customerid':'1', 'custname':'John Smith'}
      datanode_attr_list = {'customerid ': 1, 'custemail': 'a@a.com', 'addrline': '45 sdsds 34343', 'city': 'Boston', 'state': 'MA', 'country': 'US', 'zip': 2110, 'custphone': '123-232-2323'}
          
-     gndw_datanode_add_api(node_name, node_attr_list, datanode_name, datanode_attr_list, verbose)
+     gndw_datarepo_datanode_add_api(node_name, node_attr_list, datanode_name, datanode_attr_list, verbose)
     
   
     
