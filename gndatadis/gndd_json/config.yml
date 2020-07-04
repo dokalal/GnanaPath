@@ -1,0 +1,7 @@
+FilePath:
+    local_path: "idoc.1679174.json"
+    local_path_list:
+      - "idoc.1679174.json"
+      - "idoc_1679189.json"
+    remote_path:
+        url: "https://gist.githubusercontent.com/criesbeck/0039c807800cee062af5c806e10d1347/raw/ee8d0a6d2fca88aa03536aa4b22a5a8fde82b2cb/products.json"
