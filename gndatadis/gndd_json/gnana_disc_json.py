@@ -51,7 +51,7 @@ class ParseJson:
             with open(self.file_path) as data_file:    
                 data = json.load(data_file)
                 df = pd.json_normalize(data)
-        
+        df.columns = df.columns.str.replace(r"[.#$,\/]", "_")
         if drop_col==True:
             df_new = self.drop_columns(df)
         else:
