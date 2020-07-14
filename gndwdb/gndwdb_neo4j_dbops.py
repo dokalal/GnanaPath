@@ -48,7 +48,7 @@ def               gndw_metarepo_metanode_add(graph_conn, nodename, node_attr_lis
     ####node attrlist format: attr1: attrname, attr2:
     with graph_conn.session() as grpDB_Ses:
        #### Verify that the drug does not exist first
-       cqlqry = "MATCH(x:"+nodename+" {name:'"+nodename+"', type:'TableNode'}) return x"
+       cqlqry = "MATCH(x:"+str(nodename)+" {name:'"+nodename+"', type:'TableNode'}) return x"
        nodes = grpDB_Ses.run(cqlqry)
        len = 0
        for n in nodes:
@@ -79,7 +79,7 @@ def               gndw_metarepo_metanode_add(graph_conn, nodename, node_attr_lis
             attrname = str(v)
             
             ### Add new node for attribute
-            cqlqry = "MATCH(x:"+attrname+" {name:'"+attrname+"', type:'TableAttrNode'}) return x"
+            cqlqry = "MATCH(x:"+str(attrname)+" {name:'"+attrname+"', type:'TableAttrNode'}) return x"
             nodes = grpDB_Ses.run(cqlqry)
             
             len = 0
@@ -99,7 +99,7 @@ def               gndw_metarepo_metanode_add(graph_conn, nodename, node_attr_lis
                     print("gndw_metarepo_metadata_add: TableAttrNode:"+attrname+" exists")
             
             #### Now add relationship between tablenode and tablenodeattr
-            cqledgeqry = "MATCH (d:"+nodename+" {name:'"+nodename+"'})-[r]-(a:"+attrname+" {name:'"+attrname+"'}) return TYPE(r), PROPERTIES(r)"        
+            cqledgeqry = "MATCH (d:"+str(nodename)+" {name:'"+nodename+"'})-[r]-(a:"+attrname+" {name:'"+attrname+"'}) return TYPE(r), PROPERTIES(r)"        
             nodes = grpDB_Ses.run(cqledgeqry)
             
             len = 0
@@ -122,7 +122,7 @@ def               gndw_metarepo_metanode_add(graph_conn, nodename, node_attr_lis
                if (verbose > 1):
                    print("gndw_metarepo_metanode_add: TableAttrNode HAS_ATTR rel does not exist ")
     
-               cqlrelins =  "MATCH (d:"+nodename+"), (p:"+attrname+") WHERE d.name ='"+nodename+"' AND p.name = '"+attrname+"' CREATE (d)-[:HAS_ATTR {count: 1}]->(p)"
+               cqlrelins =  "MATCH (d:"+str(nodename)+"), (p:"+str(attrname)+") WHERE d.name ='"+nodename+"' AND p.name = '"+attrname+"' CREATE (d)-[:HAS_ATTR {count: 1}]->(p)"
 
                if (verbose > 2):
                    print("gndw_metarepo_metanode_add: TableAttrNode:"+attrname+" HAS_ATTR relship qry :")
@@ -133,7 +133,7 @@ def               gndw_metarepo_metanode_add(graph_conn, nodename, node_attr_lis
             else:
                 print("gndw_metarepo_metanode_add: TableAttrNode HAS_ATTR relship already exists with rcount:"+str(rcount))
               
-                cqlrelins = "MATCH (x:"+nodename+" {name:'"+nodename+"'})-[r]->(y:"+attrname+" {name:'"+attrname+"'}) SET r.count="+str(rcount+1)+" RETURN r.count" 
+                cqlrelins = "MATCH (x:"+str(nodename)+" {name:'"+nodename+"'})-[r]->(y:"+attrname+" {name:'"+attrname+"'}) SET r.count="+str(rcount+1)+" RETURN r.count" 
                 if (verbose > 2):
                     print("gndw_metarepo_metanode_add: TableAttrNode HAS_ATTR relship updating rcount qry:"+cqlrelins)
                 grpDB_Ses.run(cqlrelins)  
@@ -169,7 +169,7 @@ def                gndw_metarepo_metanode_add_api(node_name, node_attr_list, ver
 
 def                 gndw_datarepo_datanode_add(graph_conn, nodename, node_attr_list, datanode_name_inp, datanode_attr_list, verbose):
     
-    if (verbose > 1):          
+    if (verbose > 0):          
         print("gndw_datarepo_datanode_add: Adding new DataNode name %s" % nodename)
     
     ####node attrlist format: attr1: attrname, attr2:
@@ -193,9 +193,14 @@ def                 gndw_datarepo_datanode_add(graph_conn, nodename, node_attr_l
             if (verbose > 1):
                 print("gndw_datarepo_datanode_add: MetaTableNode "+nodename+ " already exist in datarepo ")
 
+                
        datanode_name = datanode_name_inp.replace(" ", '')
+
+       if (verbose > 2):
+           print("gndw_datarepo_datanode_add: Removed extra spaces in datanode label :"+datanode_name)
+           
        #### Verify that the datnode  exist first
-       cqlqry = "MATCH(x:"+datanode_name+" {name:'"+datanode_name+"', type:'TableDataNode'}) return x"
+       cqlqry = "MATCH(x:"+str(datanode_name)+" {name:'"+datanode_name+"', type:'TableDataNode'}) return x"
 
        if (verbose > 2):
            print("gndw_datarepo_datanode_add: Checking if datanode "+datanode_name+" exists CQLqry:", cqlqry)
@@ -212,6 +217,8 @@ def                 gndw_datarepo_datanode_add(graph_conn, nodename, node_attr_l
             #### Prepate data attr list
             ######### Check TableDataNode Attr list exist 
             ####attr_list {attr1: attrname, attr2: attrname, }
+            if (verbose > 2):
+                print("gndw_datarepo_datanode_add: Preparing list of datanode attr list")
             alist = ''
             for k, v in datanode_attr_list.items():
                 if (i > 0):
@@ -224,7 +231,7 @@ def                 gndw_datarepo_datanode_add(graph_conn, nodename, node_attr_l
             if (verbose > 1):
                 print('gndw_datarepo_datanode_add: Prepared DataNode attribute list '+alist)
             ##### Create new tablenode  entity does not exist in db
-            cqlqry = "CREATE (d:"+datanode_name+" {name:'"+datanode_name+"' , type:'TableDataNode', "+alist+"})"
+            cqlqry = "CREATE (d:"+str(datanode_name)+" {name:'"+datanode_name+"' , type:'TableDataNode', "+alist+"})"
                 
                 
             if (verbose > 2):
@@ -233,11 +240,11 @@ def                 gndw_datarepo_datanode_add(graph_conn, nodename, node_attr_l
             grpDB_Ses.run(cqlqry)
        else:
             if (verbose > 1):
-                print("gndw_datarepo_datanode_add: DataNode "+datanode_name+ " already exist")
+                print("gndw_datarepo_datanode_add: DataNode "+datanode_name+ " already exist and attribute list not updated")
        
     
        #### Now add relationship between tablenode and tablenodeattr
-       cqledgeqry = "MATCH (d:"+nodename+" {name:'"+nodename+"'})-[r]-(a:"+datanode_name+" {name:'"+datanode_name+"'}) return TYPE(r), PROPERTIES(r)"        
+       cqledgeqry = "MATCH (d:"+str(nodename)+" {name:'"+nodename+"'})-[r]-(a:"+str(datanode_name)+" {name:'"+datanode_name+"'}) return TYPE(r), PROPERTIES(r)"        
        nodes = grpDB_Ses.run(cqledgeqry)
         
        len = 0
@@ -261,7 +268,7 @@ def                 gndw_datarepo_datanode_add(graph_conn, nodename, node_attr_l
           if (verbose > 1):
                print("gndw_datarepo_datanode_add: DataNode:"+datanode_name+" IS relship  is not present ")
     
-          cqlrelins =  "MATCH (d:"+nodename+"), (p:"+datanode_name+") WHERE d.name ='"+nodename+"' AND p.name = '"+datanode_name+"' CREATE (d)-[:IS {count: 1}]->(p)"
+          cqlrelins =  "MATCH (d:"+str(nodename)+"), (p:"+str(datanode_name)+") WHERE d.name ='"+nodename+"' AND p.name = '"+datanode_name+"' CREATE (d)-[:IS {count: 1}]->(p)"
           
           if (verbose > 2):
              print("gndw_datarepo_datanode_add: DataNode:"+datanode_name+" IS relship CypQry:")
@@ -272,7 +279,7 @@ def                 gndw_datarepo_datanode_add(graph_conn, nodename, node_attr_l
        else:
           print("gndw_datarepo_datanode_add: DataNode IS relship exists  with rcount:"+str(rcount))
               
-          cqlrelins = "MATCH (x:"+nodename+" {name:'"+nodename+"'})-[r]->(y:"+datanode_name+" {name:'"+datanode_name+"'}) SET r.count="+str(rcount+1)+" RETURN r.count" 
+          cqlrelins = "MATCH (x:"+str(nodename)+" {name:'"+nodename+"'})-[r]->(y:"+datanode_name+" {name:'"+datanode_name+"'}) SET r.count="+str(rcount+1)+" RETURN r.count" 
           if (verbose > 2):
               print("gndw_datarepo_datanode_add: DataNode IS relship update qry :"+cqlrelins)
           grpDB_Ses.run(cqlrelins)  
