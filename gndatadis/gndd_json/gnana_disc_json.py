@@ -1,34 +1,17 @@
-#!/usr/bin/env python
-# coding: utf-8
 
-# In[1]:
+#LaodConfig utility class present in util package which parses the yml file to load the file path
+from gnutils.read_props import LoadConfigUtil
 
-
-"""
- - A General purpose Utility class to read the yml file 
- - The yml file could contain db strings, file paths etc
- - Currently this file can be used to read the json file locally/remotely
-
-"""
-import yaml
-
-class LoadConfigUtil:
-    
-    @staticmethod
-    def get_config_data():
-        try:
-            with open('config.yml') as f:
-                data = yaml.safe_load(f)
-            return data
-        except Exception as e:
-            print("***** An Exception occured in the LoadConfigUtil class ***** \n {}".format(str(e)))
-
+#filter_chars is a decorated function present in util package to filter special characters
+from gnutils.replace_spl_chars import filter_chars
 
 import pandas as pd
 import json
+import os
 
+# Class to read and parse Json file
 class ParseJson:
-    
+    # The constructor sets the file path to be local or remote. If no path is set the default is local.
     def __init__(self, **kwargs):
         if kwargs is not None:
             if 'type' in kwargs:
@@ -51,7 +34,11 @@ class ParseJson:
             with open(self.file_path) as data_file:    
                 data = json.load(data_file)
                 df = pd.json_normalize(data)
-        df.columns = df.columns.str.replace(r"[.#$,\/]", "_")
+        #df.columns = df.columns.str.replace(r"[.#$,\/]", "_")
+        # Call the decorated function filter_chars present in the util package 
+        # Usage filter_chars('chartobereplaced', 'withreplacechar', df.col, replace=True)
+        df.columns = filter_chars("\.","_",df.columns,replace=True)
+        
         if drop_col==True:
             df_new = self.drop_columns(df)
         else:
@@ -91,13 +78,14 @@ class ParseJson:
 
 data=LoadConfigUtil.get_config_data()
 #file_path =data['FilePath']['local_path_list'][1]
-#file_path=data['FilePath']['local_path']
-file_path=data['FilePath']['remote_path']['url']
-print(file_path)
+file_path=data['FilePath']['local_path']
+#file_path=data['FilePath']['remote_path']['url']
+file_path=os.path.join(LoadConfigUtil.SAMPLE_DATA,file_path)
 
 
 
-p=ParseJson(type='remote',path=file_path)
+#p=ParseJson(type='remote',path=file_path)
+p=ParseJson(path=file_path)
 col,row=p.ret_header_dict()
 print(col)
 print(row)
