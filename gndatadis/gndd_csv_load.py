@@ -5,11 +5,11 @@ import neo4j
 import os
 import sys
 
-if '/home/jovyan/GnanaPath' not in sys.path:
-    sys.path.append('/home/jovyan/GnanaPath')
+if '/home/jovyan/gnanapath' not in sys.path:
+    sys.path.append('/home/jovyan/gnanapath')
     
-if '/home/jovyan/GnanaPath/gndwdb' not in sys.path:
-    sys.path.append('/home/jovyan/GnanaPath/gndwdb')
+if '/home/jovyan/gnanapath/gndwdb' not in sys.path:
+    sys.path.append('/home/jovyan/gnanapath/gndwdb')
 
 #LaodConfig utility class present in util package which parses the yml file to load the file path
 from gnutils.read_props import LoadConfigUtil
@@ -92,8 +92,8 @@ class gndwdbCall:
             print("gndw_neo4j_db: metaadd node returned "+str(self.meta_ret))
             
     def gndwdbDataNode(self):
-        ret = gndw_datarepo_datanode_add_api(self.node_name, self.node_attr_list, self.datanode_name, self.dic, self.verbose)
-        if (self.verbose > 1):
+       self.data_ret = gndw_datarepo_datanode_add_api(self.node_name, self.node_attr_list, self.datanode_name, self.dic, self.verbose)
+       if (self.verbose > 1):
             print("gndw_neo4j_db: Data node returned "+str(self.data_ret))
             
     def gndwdbDataNodeCall(self):

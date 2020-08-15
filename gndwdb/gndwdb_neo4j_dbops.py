@@ -43,10 +43,10 @@ def        gn_neo4j_connect(uri, userName, passw, verbose):
 
 def            gndw_dtval_filter(dataval):
     
-         if (verbose > 3):
-            print('gndw_dataval_filter: Check and add escape char filter to data value');
-
-         dataval_s1 = dataval.replace("'", "\\'")
+        # if (verbose > 3):
+        #    print('gndw_dataval_filter: Check and add escape char filter to data value');
+         datavalstr = str(dataval);
+         dataval_s1 = datavalstr.replace("'", "\\'")
          dataval_s2 = dataval_s1.replace('"', '\\"')
          ###dataval_s3 = dataval_s2.replace('\\', '\\\')
            
@@ -245,10 +245,11 @@ def                 gndw_datarepo_datanode_add(graph_conn, nodename, node_attr_l
             if (verbose > 1):
                 print("gndw_datarepo_datanode_add: TableMetaNode "+nodename_filtered+ " already exist in datarepo ")
 
+       #### Let us not ask user to set datanode label yet. We generate         
                 
        datanode_name = datanode_name_inp.replace(" ", '');
-       datanode_name_filtered = gndw_nodelabel_filter(datanode_name, 'GNNode', verbose);
-                    
+       datanode_name_filtered = gndw_nodelabel_filter(datanode_name, 'GNNode', verbose);  
+
                     
        if (verbose > 2):
            print("gndw_datarepo_datanode_add: Removed extra spaces in datanode label :"+datanode_name);
@@ -285,7 +286,7 @@ def                 gndw_datarepo_datanode_add(graph_conn, nodename, node_attr_l
             if (verbose > 1):
                 print('gndw_datarepo_datanode_add: Prepared DataNode attribute list '+alist)
             ##### Create new tablenode  entity does not exist in db
-            cqlqry = "CREATE (d:"+str(datanode_name_filtered)+" {name:'"+gndw_dtval_filter(datanode_name)+"' , type:'TableDataNode', "+alist+"})"
+            cqlqry = "CREATE (d:"+str(datanode_name_filtered)+" {name:'"+gndw_dtval_filter(datanode_name)+"' , metanode:'"+gndw_dtval_filter(nodename)+"', type:'TableDataNode', "+alist+"})"
                 
                 
             if (verbose > 2):
