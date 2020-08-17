@@ -5,11 +5,19 @@ import neo4j
 import os
 import sys
 
-if '/home/jovyan/gnanapath' not in sys.path:
-    sys.path.append('/home/jovyan/gnanapath')
+curentDir=os.getcwd()
+listDir=curentDir.rsplit('/',1)[0]
+gndwdbDir=listDir+'/gndwdb'
+if listDir not in sys.path:
+    sys.path.append(listDir)
+if gndwdbDir not in sys.path:
+    sys.path.append(gndwdbDir)
+print(sys.path)
+#if '/home/jovyan/gnanapath' not in sys.path:
+#    sys.path.append('/home/jovyan/gnanapath')
     
-if '/home/jovyan/gnanapath/gndwdb' not in sys.path:
-    sys.path.append('/home/jovyan/gnanapath/gndwdb')
+#if '/home/jovyan/gnanapath/gndwdb' not in sys.path:
+#    sys.path.append('/home/jovyan/gnanapath/gndwdb')
 
 #LaodConfig utility class present in util package which parses the yml file to load the file path
 from gnutils.read_props import LoadConfigUtil
