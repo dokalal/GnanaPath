@@ -1,0 +1,13 @@
+{
+"rulename": "PayCustomer",
+"srcnode": "customer",
+
+"targetnode": "product",
+
+"relation" : "BUYS",
+
+"matchnode": "salesorder",
+
+"matchcondition": "(salesorder.customerid = customer.customerid) AND (salesorder.productid = product.productid)"
+
+}
