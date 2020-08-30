@@ -82,9 +82,39 @@ def              gndw_nodelabel_filter(nodename, prefix, verbose):
                     
           return nodename_filtered
 
-            
-    
 
+
+def                gndw_metarepo_metanode_check(graph_conn,  nodename, verbose):
+
+    if (verbose > 2):
+        print("gndw_metarepo_metanode_check:  Verify if the node exist in metarepo"+nodename)
+
+    #### Add nodename filters first
+    nodename_filtered = gndw_nodelabel_filter(nodename, 'GNNode', verbose);
+
+        
+    with graph_conn.session() as grpDB_Ses:
+        #### Verify that the node does not exist first
+
+        cqlqry = "MATCH(x:"+str(nodename_filtered)+" {name:'"+gndw_dtval_filter(nodename)+"', type:'TableNode'}) return x"
+        nodes = grpDB_Ses.run(cqlqry)
+        len = 0
+        for n in nodes:
+            len = len + 1
+
+        if (verbose > 2):
+           print("gndw_metarepo_metanode_check: Verifying if node existig nnodes found:"+ str(len))
+
+        if (len == 0):
+           if (verbose > 2):
+               print("gndw_metarepo_metanode_check: Node does not exist in metarepo "+nodename);
+           return len;    
+        else:
+           if (verbose > 2):
+               print("gndw_metarepo_metanode_check: Node does exist in metarepo "+nodename);
+           return len;
+       
+           
 def                gndw_metarepo_metanode_add(graph_conn, nodename, node_attr_list, verbose):
     
     if (verbose > 0):      
