@@ -88,6 +88,7 @@ def             gndw_rel_bizrule_datarepo_add(meta_graph_conn, data_graph_conn, 
       ########MATCH (so {metanode:'salesorder'}), (c {metanode:'customer'}), 
       ####(p {metanode:'product'}) WHERE so.customerid = c.customerid  AND
       ####so.productid = p.productid return COUNT(so), COUNT(c), COUNT(p)
+      retval = 0;
       
       with data_graph_conn.session()  as dataGrpDB_Ses:
             
@@ -137,7 +138,9 @@ def             gndw_rel_bizrule_datarepo_add(meta_graph_conn, data_graph_conn, 
                  print('gndw_rel_bizrule_datarepo_add: num of rels:'+str(n));
             
             print("gndw_rel_bizrule_datarepo_add: number of rules to add:");
-                     
+            
+            return retval;
+      
             
 if __name__ == '__main__':
     

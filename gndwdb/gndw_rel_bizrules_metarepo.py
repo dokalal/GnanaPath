@@ -18,7 +18,7 @@ warnings.simplefilter('ignore')
 from neo4j import GraphDatabase, basic_auth
 from gndwdb_neo4j_dbops import gndw_metarepo_metanode_check
 from gndwdb_neo4j_conn import gndwdb_neo4j_conn_metarepo, gndwdb_neo4j_conn_datarepo
-
+from gndwdb_rel_bizrules_datarepo import gndw_rel_bizrule_datarepo_add
     
     
 def           gndw_rel_verify_rules(rjson, meta_graph_conn, data_graph_conn, verbose):
@@ -265,6 +265,7 @@ def              gndw_rel_rules_metarepo_add(rjson, meta_graph_conn, verbose):
         
         found = gndw_rel_rules_bizrule_exists(meta_graph_conn, rjson, verbose);
         found = 0;
+        retval = 0;
         
         if (found == 0):
             gndw_rel_rules_bizrule_add(meta_graph_conn, rjson, nrules,  verbose);
@@ -276,14 +277,16 @@ def              gndw_rel_rules_metarepo_add(rjson, meta_graph_conn, verbose):
             if (verbose > 2):
                 print('gndw_rel_rules_metarepo_add: Rule Name already exists '+str(rjson["rulename"]))
             
-        
+        return retval;
+
+    
 def            gndw_rel_rules_add(rjson, meta_graph_conn, data_graph_conn, verbose): 
     
     ###
     ##argetnode": "Product", "relation": "BUYS",  "matchnode": "salesorder", 
     ##"matchcondition": "(salesorder.customerid = customer.customerid) 
     ###AND (salesorder.productid = product.productid)"}
-    
+        
     if (verbose > 2):    
        print("gndw_relAPI:   snode:"+ rjson["srcnode"])
        print("gndw_relAPI:   tnode:"+rjson['targetnode'])
@@ -296,14 +299,43 @@ def            gndw_rel_rules_add(rjson, meta_graph_conn, data_graph_conn, verbo
         
         print("gndw_rel_rules_add: rules are verified. Add relationships"+str(retval))
         
-        gndw_rel_rules_metarepo_add(rjson, meta_graph_conn, verbose);
-        
+        retval = gndw_rel_rules_metarepo_add(rjson, meta_graph_conn, verbose);
+ 
+        if (verbose > 4):
+            print('gndw_rel_rules_add: bizules nodes added to metarepo retval : '+str(retval));
+            
+
+        retval = gndw_rel_rules_datarepo_add(meta_graph_conn, data_graph_conn, rjson, verbose);
+
+        if (verbose > 4):
+            print('gndw_rel_rules_add: bizrules datanodes added '+str(retval));
+            
         
     else:
-        print("gndw_rel_rules_add: rules are not verified  "+str(retval))    
-    
+        
+        if (verbose > 1):
+           print("gndw_rel_rules_add: ERROR rules are not verified  "+str(retval))    
     
 
+    return retval;
+
+############API to add business rules to graphdb
+
+def                  gndw_bizrules_add_api(rjson,  verbose):
+
+      if (verbose > 3):
+          print('gndw_bizrules_add: adding bizrules to meta and data repo');
+
+      meta_graph_conn = gndwdb_neo4j_conn_metarepo(verbose);
+      data_graph_conn = gndwdb_neo4j_conn_datarepo(verbose);
+
+      ret = gndw_rel_rules_add(rjson, meta_graph_conn, data_graph_conn, verbose);
+
+      return ret; 
+
+
+      
+        
 if __name__ == '__main__':
         
     ### Setting up metarepo and db repo conns
