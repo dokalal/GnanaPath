@@ -392,8 +392,8 @@ def              gndw_datarepo_datanode_add_api(node_name, node_attr_list, datan
     return ret;
     
     
-if __name__ == '__main__':
-   
+
+def     maintest_api():   
      verbose = 3
     
      if( verbose > 0):
