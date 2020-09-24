@@ -16,9 +16,9 @@ import re
 warnings.simplefilter('ignore')
 
 from neo4j import GraphDatabase, basic_auth
-from gndwdb_neo4j_dbops import gndw_metarepo_metanode_check
-from gndwdb_neo4j_conn import gndwdb_neo4j_conn_metarepo, gndwdb_neo4j_conn_datarepo
-from gndwdb_rel_bizrules_datarepo import gndw_rel_bizrule_datarepo_add
+from .gndwdb_neo4j_dbops import gndw_metarepo_metanode_check
+from .gndwdb_neo4j_conn import gndwdb_neo4j_conn_metarepo, gndwdb_neo4j_conn_datarepo
+from .gndw_rel_bizrules_datarepo import gndw_rel_bizrule_datarepo_add
     
     
 def           gndw_rel_verify_rules(rjson, meta_graph_conn, data_graph_conn, verbose):
@@ -305,7 +305,7 @@ def            gndw_rel_rules_add(rjson, meta_graph_conn, data_graph_conn, verbo
             print('gndw_rel_rules_add: bizules nodes added to metarepo retval : '+str(retval));
             
 
-        retval = gndw_rel_rules_datarepo_add(meta_graph_conn, data_graph_conn, rjson, verbose);
+        retval = gndw_rel_bizrule_datarepo_add(meta_graph_conn, data_graph_conn, rjson, verbose);
 
         if (verbose > 4):
             print('gndw_rel_rules_add: bizrules datanodes added '+str(retval));
@@ -336,8 +336,8 @@ def                  gndw_bizrules_add_api(rjson,  verbose):
 
       
         
-if __name__ == '__main__':
-        
+#####if __name__ == '__main__':
+def         bizrules_maintest_api():        
     ### Setting up metarepo and db repo conns
     verbose = 4
     meta_graph_conn = gndwdb_neo4j_conn_metarepo(verbose)
