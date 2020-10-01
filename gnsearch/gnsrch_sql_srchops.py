@@ -34,7 +34,10 @@ from gndwdb.gndwdb_neo4j_conn import gndwdb_neo4j_conn_metarepo, gndwdb_neo4j_co
 
 
 def           gnsrch_process_select_convert_cypher(sqlst, verbose):
-
+    
+     if (verbose > 3):
+          print('gnsrch_process_select_conevert: processing sqlstring '+sqlst);
+     
      jsql = parse(sqlst);
      selstr = "select";
      retval = 0;
@@ -126,7 +129,7 @@ def          gnsrch_process_sqlstr(sqlstr, meta_graph_conn,
 def                  gnsrch_sqlqry_api(sqlstr,  verbose):
 
       if (verbose > 3):
-          print('gndw_bizrules_add: adding bizrules to meta and data repo');
+          print('gnrch_sqlqry_api: Starting search api ');
 
       meta_graph_conn = gndwdb_neo4j_conn_metarepo(verbose);
       data_graph_conn = gndwdb_neo4j_conn_datarepo(verbose);
