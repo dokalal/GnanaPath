@@ -6,11 +6,13 @@
 #################################################################
 
 import flask
-from flask import request, jsonify
+from flask import request, jsonify, request, redirect, render_template,flash
+from werkzeug.utils import secure_filename
+
 import sys
 import os
 from moz_sql_parser import parse
-import json
+import json,re
 
 #### Append system path
 
@@ -42,15 +44,51 @@ def dequote(s):
 
 app = flask.Flask(__name__);
 app.config["DEBUG"] = True;
+app.secret_key = "s3cr3tk3y"
+app.config['MAX_CONTENT_LENGTH'] = 256 * 1024 * 1024
 
+#Get current path
+path = os.getcwd()
+# file Upload
+UPLOAD_FOLDER = os.path.join(path, 'uploads')
+
+# Make directory if uploads is not exists
+if not os.path.isdir(UPLOAD_FOLDER):
+    os.mkdir(UPLOAD_FOLDER)
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Allowed extension you can set your own
+ALLOWED_EXTENSIONS = set(['csv', 'json',])
+
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/', methods=['GET'])
 def  gn_home():
-     htmlStr = '<h2>Welcome Gnanapath</h2>';
-     htmlStr += '<p> Gnanapath provide business data platform </p>';
-     return htmlStr;
+     return render_template('upload.html')
 
+@app.route('/', methods=['POST'])
+def upload_file():
+    if request.method == 'POST':
 
+        if 'fd' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+
+        files = request.files["fd"]
+        print(files)
+
+        if not allowed_file(files.filename):
+            flash('Please upload CSV or JSON file')
+            return redirect(request.url)
+        elif files and allowed_file(files.filename):
+            filename = secure_filename(files.filename)
+            files.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+        flash('File(s) successfully uploaded')
+        return redirect('/')
 
 @app.route('/api/v1/search',methods=['GET'])
 def   gnsrch_api():
