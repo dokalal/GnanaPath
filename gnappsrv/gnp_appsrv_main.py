@@ -71,18 +71,19 @@ def   gnsrch_api():
           
           #### call gnsearch api
           res = gnsrch_sqlqry_api(srchqry_filtered, verbose);
+          res_data = re.sub("(\w+):", r'"\1":', res)
           
           if (verbose > 4):
              print('GNPAppSrch:   res : '+res);
              
           rjson = {
                     'status': "SUCCESS",
-                    'data': res
+                    'data': res_data
           }
 
 
           
-          return jsonify(rjson);
+          return res_data
           
      else:
           errstr = { 
