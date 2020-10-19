@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <link rel="stylesheet" href="{{ url_for('static', filename='cola/css/normalize.css')}}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='cola/css/skeleton.css' )}}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='cola/css/font-awesome.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='cola/css/open-sans.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='cola/css/index.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='cola/css/tooltipster.bundle.min.css') }} " />
+
+  <script src="{{ url_for('static', filename='cola/js/cytoscape.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='cola/js/cola.js') }}"></script>
+  <script src="{{ url_for('static', filename='cola/js/cytoscape-cola.js') }}"></script>
+  <script src="{{ url_for('static', filename='cola/js/jquery-3.1.1.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='cola/js/tooltipster.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='cola/js/index.js') }}"></script>
+
+  <title>GnanaInsight Search View Panel</title>
+</head>
+
+<body>
+  <h4>Gnana Search View</h4>
+
+  <div id="cy" class="main">
+  </div>
+
+  <div class="tools">
+
+    <h4>Gnana Search</h4>
+    <p>Please enter SQL search string Ex: SELECT * from customer  </p>
+    <input id="srchid" type="text" />
+    <button id="srchbtn">SQL Search</button>
+    <hr>
+    <h4>Layout</h4>
+
+       <label for="redo-layout" style="padding-right: 5px;" class="tooltip u-pull-left" title="Redo layout">Redo layout</label>
+       <i id="redo-layout" class="fa fa-refresh action-icon tooltip" title="Redo layout"></i>
+ 
+      <p> You may have to refresh several times. Click on the <i>Redo</i> button</p>
+
+     <hr> 
+    <h4>Graph Algorithms</h4>
+
+
+    <label for="algorithm" class="tooltip u-pull-left" title="Run algorithm. Try running A* a few times to see distances to different nodes">
+        Run algorithm
+      </label>
+    <div class="u-cf"></div>
+    <select id="algorithm">
+        <option value="none" selected>None</option>
+        <option value="bfs">BFS</option>
+        <option value="dfs">DFS</option>
+      </select>
+    <i id="redo-algorithm" class="fa fa-refresh action-icon tooltip" title="Redo algorithm visualization"></i>
+  </div>
+
+</body>
+
+</html>
