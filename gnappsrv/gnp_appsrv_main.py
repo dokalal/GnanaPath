@@ -13,7 +13,7 @@ import sys
 import os
 from moz_sql_parser import parse
 import json,re
-
+from collections import OrderedDict
 #### Append system path
 
 curentDir=os.getcwd();
@@ -44,9 +44,10 @@ def dequote(s):
 
 app = flask.Flask(__name__);
 app.config["DEBUG"] = True;
-app.secret_key = "s3cr3tk3y"
-app.config['MAX_CONTENT_LENGTH'] = 256 * 1024 * 1024
 
+app.secret_key = "secret key"
+app.config['MAX_CONTENT_LENGTH'] = 256 * 1024 * 1024
+#app.config["JSONIFY_PRETTYPRINT_REGULAR"]=True
 #Get current path
 path = os.getcwd()
 # file Upload
@@ -65,8 +66,14 @@ ALLOWED_EXTENSIONS = set(['csv', 'json',])
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+
 @app.route('/', methods=['GET'])
 def  gn_home():
+	
+     '''htmlStr = '<h2>Welcome Gnanapath</h2>';
+     htmlStr += '<p> Gnanapath provide business data platform </p>';
+     return htmlStr;'''
+
      return render_template('upload.html')
 
 @app.route('/', methods=['POST'])
@@ -90,6 +97,21 @@ def upload_file():
         flash('File(s) successfully uploaded')
         return redirect('/')
 
+
+##### GnView
+#@app.route('/gnview', methods=['GET'])
+#def  gnview_api():
+#    print('GnApp: gnview is initiated');
+#    return render_template('gnview.html');
+
+
+
+@app.route('/gnsrchview', methods=['GET'])
+def  gnview_cola_api():
+    print('GnApp: gnview cola is initiated');
+    return render_template('gnview/gnsrchview.html');
+
+
 @app.route('/api/v1/search',methods=['GET'])
 def   gnsrch_api():
 
@@ -108,20 +130,21 @@ def   gnsrch_api():
 
           
           #### call gnsearch api
-          res = gnsrch_sqlqry_api(srchqry_filtered, verbose);
-          res_data = re.sub("(\w+):", r'"\1":', res)
-          
+          res = gnsrch_sqlqry_api(srchqry_filtered, verbose)
+          res_data = re.sub("(\w+):", r'"\1":', res)         
+         
           if (verbose > 4):
              print('GNPAppSrch:   res : '+res);
              
           rjson = {
-                    'status': "SUCCESS",
-                    'data': res_data
+                    "status": "SUCCESS",
+                    "data": res_data
           }
-
-
           
-          return res_data
+          #return json.JSONDecoder(object_pairs_hook=OrderedDict).decode()
+          return res_data 
+         
+          #return  json.dumps(rjson, indent=4, separators=(',', ': '))
           
      else:
           errstr = { 
@@ -134,5 +157,7 @@ def   gnsrch_api():
 
 
 if __name__ == '__main__':
-     app.run(host='0.0.0.0', port=5050);
+     
+
+     app.run(host='0.0.0.0', port=5050, debug=True);
 
