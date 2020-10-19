@@ -90,7 +90,9 @@ def          gnsrch_process_sqlstr(sqlstr, meta_graph_conn,
         ## Execute csql 
          nodes = dataGrpDbSes.run(csqlstr);
          nlen = 0;
-         rjson = ' {'+"\n";
+         rjson = '{'+"\n";
+         rjson += ' nodes: ['+"\n";
+         ###rjson += ' {'+"\n";
             
          for n in nodes:
             ####
@@ -101,7 +103,7 @@ def          gnsrch_process_sqlstr(sqlstr, meta_graph_conn,
             if (nlen > 0):
                 rjson += ','+"\n";
             for k in n.keys():
-                rjson += 'node: { '+"\n";
+                rjson += '{ '+"\n";
                 a = 0;
                 nprops = n.get(k);
                 for p in nprops.keys():
@@ -121,8 +123,9 @@ def          gnsrch_process_sqlstr(sqlstr, meta_graph_conn,
             nlen += 1;
          if (nlen > 0):
             rjson += "\n";
-         rjson += ' }'+"\n";
-            
+         ####rjson += ' }'+"\n";
+         rjson += ']'+"\n";
+         rjson += '}'+"\n";
          return rjson;
             
 ############API to send srch string  and return json output 
