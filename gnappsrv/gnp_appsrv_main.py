@@ -13,6 +13,7 @@ import sys
 import os
 from moz_sql_parser import parse
 import json,re
+from connect_form  import ConnectServerForm
 from collections import OrderedDict
 #### Append system path
 
@@ -45,7 +46,7 @@ def dequote(s):
 app = flask.Flask(__name__);
 app.config["DEBUG"] = True;
 
-app.secret_key = "secret key"
+app.secret_key = "f1eaff5ddef68e5025adef1db4cf7807"
 app.config['MAX_CONTENT_LENGTH'] = 256 * 1024 * 1024
 #app.config["JSONIFY_PRETTYPRINT_REGULAR"]=True
 #Get current path
@@ -97,6 +98,13 @@ def upload_file():
         flash('File(s) successfully uploaded')
         return redirect('/')
 
+@app.route("/connect", methods=['GET', 'POST'])
+def connect_server():
+    form = ConnectServerForm()
+    if form.validate_on_submit():
+        flash(f'Connected to server {form.serverIP.data}!', 'success')
+        return redirect('/')
+   return render_template('connect.html', title='Connect Graph Server', form=form)
 
 ##### GnView
 #@app.route('/gnview', methods=['GET'])
