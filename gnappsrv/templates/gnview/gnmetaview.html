@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <link rel="stylesheet" href="{{ url_for('static', filename='cola/css/normalize.css')}}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='cola/css/skeleton.css' )}}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='cola/css/font-awesome.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='cola/css/open-sans.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='cola/css/index.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='cola/css/tooltipster.bundle.min.css') }} " />
+
+  <script src="{{ url_for('static', filename='cola/js/cytoscape.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='cola/js/cola.js') }}"></script>
+  <script src="{{ url_for('static', filename='cola/js/cytoscape-cola.js') }}"></script>
+  <script src="{{ url_for('static', filename='cola/js/jquery-3.1.1.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='cola/js/tooltipster.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='cola/js/metaview.js') }}"></script>
+
+  <title>GnanaInsight Search View Panel</title>
+
+<style>
+.slidecontainer {
+  width: 100%;
+}
+
+.slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 25px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  background: #4CAF50;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  background: #4CAF50;
+  cursor: pointer;
+}
+</style>
+</head>
+
+
+<body>
+  <h4>Gnana MetaData View</h4>
+
+  <div id="cy" class="main">
+  </div>
+
+  <div class="tools">
+
+    <h4>Gnana Meta Nodes Search</h4>
+    <p>You can search specific meta node or associations  </p>
+    <input id="srchid" type="text" />
+    <button id="srchbtn">Search</button>
+    <hr>
+    <h4>Layout</h4>
+
+
+      <div class="slidecontainer">
+         <p>Zoom View:</p>
+         <input type="range" min="1" max="100" value="50" id="gnzoomid">
+  
+         <p>Node Space</p>
+         <input type="range" min="1" max="100" value="50" class="slider" id="gnnodespaceid">
+      </div>
+
+
+       <div>
+    
+          <label for="redo-layout" style="padding-right: 5px;" class="tooltip u-pull-left" title="Redo layout">Redo layout</label>
+          <i id="redo-layout" class="fa fa-refresh action-icon tooltip" title="Redo layout"></i>
+ 
+           <h6> You may have to refresh several times. Click on the <i>Redo</i> button</p>
+      </div>
+     <hr> 
+    <h4>Graph Algorithms</h4>
+
+
+    <label for="algorithm" class="tooltip u-pull-left" title="Run algorithm. Try running A* a few times to see distances to different nodes">
+        Run algorithm
+      </label>
+    <div class="u-cf"></div>
+    <select id="algorithm">
+        <option value="none" selected>None</option>
+        <option value="bfs">BFS</option>
+        <option value="dfs">DFS</option>
+      </select>
+    <i id="redo-algorithm" class="fa fa-refresh action-icon tooltip" title="Redo algorithm visualization"></i>
+  </div>
+
+</body>
+
+</html>
