@@ -44,7 +44,7 @@ def           gndwdb_neo4j_conn_connect(uri, userName, passw, verbose):
 def             gndwdb_neo4j_conn_metarepo(verbose):
 
     # Database Credentials
-    uri = "bolt://172.17.0.4"
+    uri = "bolt://172.17.0.10"
     userName = "neo4j"
     #password = os.getenv("NEO4J_PASSWORD")
     passw = 'ca$hc0w'
@@ -57,7 +57,7 @@ def             gndwdb_neo4j_conn_metarepo(verbose):
 
 
 
-def           gndwdb_neo4j_conn_datarepo(verbose):
+def            gndwdb_neo4j_conn_datarepo(verbose):
 
     # Database Credentials
     uri = "bolt://172.17.0.6"
