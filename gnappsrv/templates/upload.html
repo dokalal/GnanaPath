@@ -1,35 +1,27 @@
-<!doctype html>
-<title>Welcome Gnanapath</title>
+{% extends "base_layout.html" %}
+{% block content %}
 
-<!-- Bootstrap -->
-<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-<h2>Welcome Gnanapath</h2>
-<p> Gnanapath provide business data platform </p>
+<form class="md-form" method="post" action="/" enctype="multipart/form-data">
+<div class="input-group">
+  <div class="custom-file">
+  <input type="file" class="custom-file-input" name="fd" id="inputGroupFile01"  autocomplete="off" required aria-described$
+    <label class="custom-file-label" for="inputGroupFile01">Choose a CSV or JSON file</label>
+   </div>
+   <div class="row">&nbsp;
+   <div class="col-md-12">
+ </div></div>
+<div class="input-group-prepend">
+   <button type="submit" class="btn btn-primary">Upload</button>
+    </div>
 
-<div class="container">
-  <div class="row">
-    <div class="col">
-
-
-<p>
-        {% with messages = get_flashed_messages() %}
-          {% if messages %}
-                <ul class=flashes>
-                {% for message in messages %}
-                  <li>{{ message }}</li>
-                {% endfor %}
-                </ul>
-          {% endif %}
-        {% endwith %}
-</p>
-<form method="post" action="/" enctype="multipart/form-data">
-        <div class="form-group">
-          <div class="custom-file">
-                        <input type="file" class="custom-file-input" name="fd" autocomplete="off" required>
-                </div>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Upload</button>
 </div>
-</div>
-</div>
+
+</form>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type="application/javascript">
+ $('input[type="file"]').change(function(e){
+        var fileName = e.target.files[0].name;
+        $('.custom-file-label').html(fileName);
+    });
+</script>
+{% endblock content %}
