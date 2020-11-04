@@ -104,7 +104,7 @@ def connect_server():
     if form.validate_on_submit():
         flash(f'Connected to server {form.serverIP.data}!', 'success')
         return redirect('/')
-   return render_template('connect.html', title='Connect Graph Server', form=form)
+    return render_template('connect.html', title='Connect Graph Server', form=form)
 
 ##### GnView
 #@app.route('/gnview', methods=['GET'])
