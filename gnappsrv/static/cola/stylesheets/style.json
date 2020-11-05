@@ -4,24 +4,26 @@
     "style": {
       "selection-box-color": "#AAD8FF",
       "selection-box-border-color": "#8BB0D0",
-      "selection-box-opacity": "0.5"
+      "selection-box-opacity": "0.5",
+      "minZoom": "0.1",
+	"maxZoom": "10"
     }
   },
   {
     "selector": "node",
-    "style": {
-      "width": "mapData(score, 0, 0.21903959561920813, 20, 60)",
-      "height": "mapData(score, 0, 0.21903959561920813, 20, 60)",
-      "label": "data(name)",
-      "font-size": "5px",
-      "text-valign": "center",
-      "text-halign": "center",
-      "background-color": "#aa0755",
-      "text-outline-color": "#555",
-      "text-outline-width": "1px",
-      "color": "#fff",
-      "overlay-padding": "6px",
-      "z-index": "10"
+     "style": {
+        "width": "mapData(score, 0, 0.21903959561920813, 20, 60)",
+        "height": "mapData(score, 0, 0.21903959561920813, 20, 60)",
+        "label": "data(name)",
+        "font-size": "15px",
+        "text-valign": "center",
+        "text-halign": "center",
+        "background-color": "#aa0755",
+        "text-outline-color": "#555",
+        "text-outline-width": "1px",
+        "color": "#fff",
+        "overlay-padding": "6px",
+        "z-index": "10"
     }
   },
   {
