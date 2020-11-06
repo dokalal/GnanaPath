@@ -1,5 +1,5 @@
 ###################################################################
-#  GnanaPah Main App Server
+#  GnanaPath Main App Server
 #
 #
 #
@@ -82,20 +82,20 @@ def upload_file():
     if request.method == 'POST':
 
         if 'fd' not in request.files:
-            flash('No file part')
+            flash('No file part','danger')
             return redirect(request.url)
 
         files = request.files["fd"]
         print(files)
 
         if not allowed_file(files.filename):
-            flash('Please upload CSV or JSON file')
+            flash('Please upload CSV or JSON file','danger')
             return redirect(request.url)
         elif files and allowed_file(files.filename):
             filename = secure_filename(files.filename)
             files.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-        flash('File(s) successfully uploaded')
+        flash(f'File {filename} successfully uploaded','success')
         return redirect('/')
 
 @app.route("/connect", methods=['GET', 'POST'])
