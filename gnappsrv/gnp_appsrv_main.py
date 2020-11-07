@@ -208,6 +208,42 @@ def   gnmetanodes_fetch_api():
 
      #return  json.dumps(rjson, indent=4, separators=(',', ': '))
 
+@app.route('/api/v1/metaedges',methods=['GET'])
+def    gnmetaedges_fetch_api():
+
+     verbose = 5;
+     print('GNPAppserver: Meta edges search api ');
+     #### Get srchstring and then pass to search func
+     if 'srchqry' in request.args:
+          srchqry_raw = request.args['srchqry'];
+
+          # Remove "' begining and end
+          srchqry = dequote(srchqry_raw);
+
+          #### Let us invoke gnsrch api
+          if (verbose > 3):
+             print('GNPAppServer: search qry for metanodes : '+srchqry);
+
+     else:
+         srchqry = '';
+
+
+     #### call gnmeta node search api Right now ignore searchqry arg
+
+     res = gndwdb_metarepo_edges_fetch_api(verbose);
+     res_data = re.sub("(\w+):", r'"\1":', res)
+
+     if (verbose > 4):
+        print('GNPAppServer:   res : '+res);
+
+     rjson = {
+             "status": "SUCCESS",
+             "data": res_data
+     }
+
+     #return json.JSONDecoder(object_pairs_hook=OrderedDict).decode()
+     return res_data;
+
 
       
 if __name__ == '__main__':
