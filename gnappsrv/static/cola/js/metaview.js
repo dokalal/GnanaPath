@@ -172,7 +172,7 @@
 	///var url = '/static/cola/js/product.json';
 	var srchstr = document.getElementById('srchid').value;
 
-	console.log('GNView: sql txt srch '+srchstr);
+	console.log('GNFetchData View: sql txt srch '+srchstr);
 	var nodes_url = "/api/v1/metanodes?srchqry='"+srchstr+"'";
 	var edges_url = "/api/v1/metaedges?srchqry='"+srchstr+"'";
 	var nodes;
