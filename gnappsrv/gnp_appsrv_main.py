@@ -23,6 +23,7 @@ listDir=curentDir.rsplit('/',1)[0];
 sys.path.append(listDir);
 
 from gnsearch.gnsrch_sql_srchops  import gnsrch_sqlqry_api;
+from gndwdb.gndwdb_neo4j_fetchops import gndwdb_metarepo_nodes_fetch_api, gndwdb_metarepo_edges_fetch_api;
 
 
 
