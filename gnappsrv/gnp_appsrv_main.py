@@ -6,14 +6,14 @@
 #################################################################
 
 import flask
-from flask import request, jsonify, request, redirect, render_template,flash
+from flask import request, jsonify, request, redirect, render_template,flash,url_for
 from werkzeug.utils import secure_filename
-
-import sys
-import os
+from flask_login import login_required, current_user, login_user, logout_user,LoginManager
+import sys,os
+import reg_users
 from moz_sql_parser import parse
 import json,re
-from connect_form  import ConnectServerForm
+from connect_form  import ConnectServerForm,LoginForm
 from collections import OrderedDict
 #### Append system path
 
@@ -22,13 +22,9 @@ listDir=curentDir.rsplit('/',1)[0];
 #print(' Test listdir: '+listDir)
 sys.path.append(listDir);
 
+
 from gnsearch.gnsrch_sql_srchops  import gnsrch_sqlqry_api;
 from gndwdb.gndwdb_neo4j_fetchops import gndwdb_metarepo_nodes_fetch_api, gndwdb_metarepo_edges_fetch_api;
-
-
-
-
-
 
 
 def dequote(s):
@@ -40,7 +36,6 @@ def dequote(s):
     if (s[0] == s[-1]) and s.startswith(("'", '"')):
         return s[1:-1]
     return s
-
 
 
 
@@ -64,10 +59,18 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # Allowed extension you can set your own
 ALLOWED_EXTENSIONS = set(['csv', 'json',])
 
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+usr = reg_users.User()
+all_users={"gnadmin":usr}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+@login_manager.user_loader
+def load_user(user_id):
+    return all_users.get(user_id)
 
 @app.route('/', methods=['GET'])
 def  gn_home():
@@ -76,10 +79,13 @@ def  gn_home():
      htmlStr += '<p> Gnanapath provide business data platform </p>';
      return htmlStr;'''
 
-     return render_template('upload.html')
+     return render_template('base_layout.html') #redirect(url_for('user_login'))
 
-@app.route('/', methods=['POST'])
+@app.route('/upload', methods=['GET','POST'])
+@login_required
 def upload_file():
+    if request.method == 'GET':
+       return render_template('upload.html') 
     if request.method == 'POST':
 
         if 'fd' not in request.files:
@@ -100,12 +106,43 @@ def upload_file():
         return redirect('/')
 
 @app.route("/connect", methods=['GET', 'POST'])
+@login_required
 def connect_server():
     form = ConnectServerForm()
     if form.validate_on_submit():
         flash(f'Connected to server {form.serverIP.data}!', 'success')
         return redirect('/')
     return render_template('connect.html', title='Connect Graph Server', form=form)
+
+@app.route("/logout/")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('user_login'))
+
+@app.route("/login", methods=['GET','POST'])
+def user_login():
+    form = LoginForm()
+    if request.method == 'GET':
+       return render_template('login.html', title='Login ', form=form)
+    
+    username = request.form["username"]
+    if username not in all_users:
+        flash(f'Invalid  user','danger')
+        return render_template("login.html", form=form)
+    user = all_users[username]
+    print(user)
+    if not user.check_password(request.form["password"]):
+        flash(f'Incorrect password','danger')
+        return render_template("login.html", form=form)
+
+    login_user(user)
+   
+    return redirect(url_for('connect_server'))
+    #else:
+    #  flash(f'Error Login failed','danger')
+    #  return redirect(url_for('login_user'))
+    #return render_template('login.html', title='Login ', form=form)
 
 ##### GnView
 #@app.route('/gnview', methods=['GET'])
@@ -116,12 +153,14 @@ def connect_server():
 
 
 @app.route('/gnsrchview', methods=['GET'])
+@login_required
 def  gnview_cola_api():
     print('GnApp: gnview cola is initiated');
     return render_template('gnview/gnsrchview.html');
 
 
 @app.route('/api/v1/search',methods=['GET'])
+@login_required
 def   gnsrch_api():
 
      verbose = 5;
@@ -165,6 +204,7 @@ def   gnsrch_api():
 
 
 @app.route('/gnmetaview', methods=['GET'])
+@login_required
 def  gnmetaview_cola_api():
     print('GnApp: gnview cola is initiated');
     return render_template('gnview/gnmetaview.html');
@@ -172,6 +212,7 @@ def  gnmetaview_cola_api():
 
 
 @app.route('/api/v1/metanodes',methods=['GET'])
+@login_required
 def   gnmetanodes_fetch_api():
 
      verbose = 5;
@@ -209,6 +250,7 @@ def   gnmetanodes_fetch_api():
      #return  json.dumps(rjson, indent=4, separators=(',', ': '))
 
 @app.route('/api/v1/metaedges',methods=['GET'])
+@login_required
 def    gnmetaedges_fetch_api():
 
      verbose = 5;
