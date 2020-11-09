@@ -15,6 +15,7 @@ from moz_sql_parser import parse
 import json,re
 from connect_form  import ConnectServerForm,LoginForm
 from collections import OrderedDict
+from tinydb import TinyDB,Query
 #### Append system path
 
 curentDir=os.getcwd();
@@ -110,9 +111,22 @@ def upload_file():
 def connect_server():
     form = ConnectServerForm()
     if form.validate_on_submit():
+        result = request.form.to_dict()
+        save_valid_json(result)
         flash(f'Connected to server {form.serverIP.data}!', 'success')
         return redirect('/')
     return render_template('connect.html', title='Connect Graph Server', form=form)
+
+def save_valid_json(dict_result):
+    req_items=['serverIP', 'username', 'password']
+    req_dict = {key:value for key, value in dict_result.items() if key in req_items}
+    db=TinyDB('server_config.json')
+    Server_Details=Query()
+    if not db.search(Server_Details.username==req_dict['serverIP']):
+        db.insert(req_dict)
+    else:    
+        print(f"Server Config file already contains details of IP {req_dict['serverIP']}") 
+
 
 @app.route("/logout/")
 @login_required
