@@ -29,14 +29,12 @@ class SimpleDBUser():
    def get_username(self):
        if not self.get_user_details():
             self.create_user()
-       else:
-         uname=self.get_user_details()
+       uname=self.get_user_details()
        return uname[0]['username']
 
    def get_password(self):
        if not self.get_user_details():
             self.create_user()
-       else:
-         upwd = self.get_user_details()
+       upwd = self.get_user_details()
        return  upwd[0]['password']
 
