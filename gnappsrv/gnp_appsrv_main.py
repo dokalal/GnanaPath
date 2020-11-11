@@ -109,6 +109,7 @@ def upload_file():
 @app.route("/connect", methods=['GET', 'POST'])
 @login_required
 def connect_server():
+  
     form = ConnectServerForm()
     if form.validate_on_submit():
         result = request.form.to_dict()
@@ -145,13 +146,12 @@ def user_login():
         flash(f'Invalid  user','danger')
         return render_template("login.html", form=form)
     user = all_users[username]
-    print(user)
     if not user.check_password(request.form["password"]):
         flash(f'Incorrect password','danger')
         return render_template("login.html", form=form)
 
     login_user(user)
-   
+    flash("Please input the server config details",'success')
     return redirect(url_for('connect_server'))
     #else:
     #  flash(f'Error Login failed','danger')
