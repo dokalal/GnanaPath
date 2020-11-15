@@ -2,7 +2,7 @@ import os
 #Get the base directory path, base_dir returns Gnanapath
 BASE_DIR=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-def get_json_path():
+def   get_config_neo4j_conninfo_file():
     # Get the appsrv dir path, construct the appsrv path from the basedir
     json_file_path=os.path.join(BASE_DIR,'gnappsrv')
     # Change the current working directory to appsrvpath
