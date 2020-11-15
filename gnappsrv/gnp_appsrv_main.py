@@ -26,9 +26,11 @@ sys.path.append(listDir);
 
 from gnsearch.gnsrch_sql_srchops  import gnsrch_sqlqry_api;
 from gndwdb.gndwdb_neo4j_fetchops import gndwdb_metarepo_nodes_fetch_api, gndwdb_metarepo_edges_fetch_api;
+from gndwdb.gndwdb_neo4j_conn import  gndwdb_neo4j_conn_check_api;
+from gnutils.get_config_file import get_config_neo4j_conninfo_file;
 
 
-def dequote(s):
+def    dequote(s):
     """
     If a string has single or double quotes around it, remove them.
     Make sure the pair of quotes match.
@@ -74,7 +76,7 @@ def load_user(user_id):
     return all_users.get(user_id)
 
 @app.route('/', methods=['GET'])
-def  gn_home():
+def      gn_home():
 	
      '''htmlStr = '<h2>Welcome Gnanapath</h2>';
      htmlStr += '<p> Gnanapath provide business data platform </p>';
@@ -84,7 +86,7 @@ def  gn_home():
 
 @app.route('/upload', methods=['GET','POST'])
 @login_required
-def upload_file():
+def     upload_file():
     if request.method == 'GET':
        return render_template('upload.html') 
     if request.method == 'POST':
@@ -108,12 +110,16 @@ def upload_file():
 
 @app.route("/connect", methods=['GET', 'POST'])
 @login_required
-def connect_server():
+def     connect_server():
   
     form = ConnectServerForm()
     if form.validate_on_submit():
         result = request.form.to_dict()
-        save_valid_json(result)
+        save_valid_json(result);
+        verbose = 0;
+        cfg_file = get_config_neo4j_conninfo_file();
+        gndwdb_neo4j_conn_check_api(cfg_file, verbose);
+        
         flash(f'Connected to server {form.serverIP.data}!', 'success')
         return redirect('/')
     return render_template('connect.html', title='Connect Graph Server', form=form)
