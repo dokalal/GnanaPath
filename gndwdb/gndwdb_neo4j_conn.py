@@ -26,7 +26,7 @@ sys.path.append(listDir);
 from gnutils.get_config_file import get_config_neo4j_conninfo_file;
 
 
-def           gndwdb_neo4j_conn_connect(uri, userName, passw, verbose):
+def gndwdb_neo4j_conn_connect(uri, userName, passw, verbose):
 
     # Database Credentials
     #uri = "bolt://192.168.0.59"
@@ -37,7 +37,7 @@ def           gndwdb_neo4j_conn_connect(uri, userName, passw, verbose):
     try:
         # Connect to the neo4j database server
         graphDB_Driver = GraphDatabase.driver(uri, auth=(userName, passw))
-
+        
         if (verbose >= 1):
             print("gndw_neo4j_connect: Successfully connected to "+uri)
     except:
@@ -80,7 +80,7 @@ def            gndwdb_neo4j_conn_datarepo(verbose):
     return graph_conn
 
 
-def           gndwdb_neo4j_conn_check_api(cfgfile, verbose):
+def gndwdb_neo4j_conn_check_api(cfgfile, verbose):
 
       if (verbose > 3):
           print('gndwdb_neo4j_conn: parsing cfg file'+cfgfile);
@@ -94,18 +94,22 @@ def           gndwdb_neo4j_conn_check_api(cfgfile, verbose):
           nconfig = def_config['1'];
           print(nconfig);
           # read config list
-          uri = "bolt://"+nconfig['serverIP']+":7689";
+          uri = "bolt://"+nconfig['serverIP'];
           userName = nconfig['username'];
           passw = nconfig['password'];
           graph_conn = gndwdb_neo4j_conn_connect(uri, userName, passw, verbose);
+          if graph_conn=='':
+             print("Error..")
+             return "Error"
           if graph_conn is None:
              ### Unable to connect
-             print('Error! Unable to connect to graph server'); 
+             print('Error! Unable to connect to graph server');
+             print("None...") 
              return -1;
-          print('Graph Server connected! '+uri);
-          print(graph_conn);
+          #print('Graph Server connected! '+uri);
+          #print(graph_conn);
           #else:
-
+          print(graph_conn)
           # return -1;          
 
 

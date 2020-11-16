@@ -6,7 +6,7 @@
 #################################################################
 
 import flask
-from flask import request, jsonify, request, redirect, render_template,flash,url_for
+from flask import request, jsonify, request, redirect, render_template,flash,url_for,session
 from werkzeug.utils import secure_filename
 from flask_login import login_required, current_user, login_user, logout_user,LoginManager
 import sys,os
@@ -110,35 +110,51 @@ def     upload_file():
 
 @app.route("/connect", methods=['GET', 'POST'])
 @login_required
-def     connect_server():
+def connect_server():
   
     form = ConnectServerForm()
+    if 'serverIP' in session:
+       flash('User already connected to neo4j server','info')
+       return redirect("/")
     if form.validate_on_submit():
         result = request.form.to_dict()
-        save_valid_json(result);
+        perform_ops_json(result,operation='insert');
         verbose = 0;
         cfg_file = get_config_neo4j_conninfo_file();
-        gndwdb_neo4j_conn_check_api(cfg_file, verbose);
-        
-        flash(f'Connected to server {form.serverIP.data}!', 'success')
-        return redirect('/')
+        res=gndwdb_neo4j_conn_check_api(cfg_file, verbose);
+        if res=="Error":
+           flash(f'Error connecting to neo4j server {form.serverIP.data}', 'danger')
+           perform_ops_json(result,operation='delete')
+           return render_template('connect.html', title='Connect Graph Server', form=form)
+        else:    
+           session['serverIP']=form.serverIP.data
+           flash(f'Connected to server {form.serverIP.data}!', 'success')
+           return redirect('/')
     return render_template('connect.html', title='Connect Graph Server', form=form)
 
-def save_valid_json(dict_result):
-    req_items=['serverIP', 'username', 'password']
-    req_dict = {key:value for key, value in dict_result.items() if key in req_items}
+def perform_ops_json(dict_result,**dbop):
     db=TinyDB('server_config.json')
     Server_Details=Query()
-    if not db.search(Server_Details.username==req_dict['serverIP']):
-        db.insert(req_dict)
-    else:    
-        print(f"Server Config file already contains details of IP {req_dict['serverIP']}") 
-
+    req_items=['serverIP', 'username', 'password']
+    req_dict = {key:value for key, value in dict_result.items() if key in req_items}
+    if dbop['operation']=="insert":
+    	
+    	if not db.search(Server_Details.serverIP==req_dict['serverIP']):
+            db.insert(req_dict)
+    	else:    
+            print(f"Server Config file already contains details of IP {req_dict['serverIP']}") 
+    if dbop['operation']=="delete":
+        from tinydb import where
+        #db.update(delete('serverIP'), Server_Details.serverIP == req_dict['serverIP'])
+        db.remove(where('serverIP') == req_dict['serverIP'])   
 
 @app.route("/logout/")
 @login_required
 def logout():
     logout_user()
+    session.pop('serverIP', None)
+    if os.path.exists('server_config.json'):
+        os.remove('server_config.json')
     return redirect(url_for('user_login'))
 
 @app.route("/login", methods=['GET','POST'])
