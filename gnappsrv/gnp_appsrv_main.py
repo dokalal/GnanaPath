@@ -6,7 +6,7 @@
 #################################################################
 
 import flask
-from flask import request, jsonify, request, redirect, render_template,flash,url_for,session
+from flask import request, jsonify, request, redirect, render_template,flash,url_for,session,Markup
 from werkzeug.utils import secure_filename
 from flask_login import login_required, current_user, login_user, logout_user,LoginManager
 import sys,os
@@ -114,7 +114,7 @@ def connect_server():
   
     form = ConnectServerForm()
     if 'serverIP' in session:
-       flash('User already connected to neo4j server','info')
+       flash(Markup('Already connected to neo4j server,Click <a href="/modify" class="alert-link"> here</a> to modify'),'warning')
        return redirect("/")
     if form.validate_on_submit():
         result = request.form.to_dict()
@@ -147,6 +147,11 @@ def perform_ops_json(dict_result,**dbop):
         from tinydb import where
         #db.update(delete('serverIP'), Server_Details.serverIP == req_dict['serverIP'])
         db.remove(where('serverIP') == req_dict['serverIP'])   
+
+@app.route("/modify",methods=['GET','POST'])
+@login_required
+def modify_conn_details():
+  return render_template("connect_modify.html", title='Modify connection details')
 
 @app.route("/logout/")
 @login_required
