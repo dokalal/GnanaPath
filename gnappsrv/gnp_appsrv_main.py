@@ -205,14 +205,28 @@ def  gnview_cola_api():
 def   gnsrch_api():
 
      verbose = 5;
+     srchqry = '';
      print('GNPAppserver: search api ');     
      #### Get srchstring and then pass to search func
      if 'srchqry' in request.args:
           srchqry = request.args['srchqry'];
 
+          if (verbose > 3):
+             print('GNPAppServer: search qry string:'+srchqry);
+
           # Remove "' begining and end
           srchqry_filtered = dequote(srchqry);
+
+          slen = len(srchqry_filtered);
+          if (slen == 0):
+              res_data = '';
+
+              if (verbose > 3):
+                  print('GNPAppServer: Input search qry string is empty');
+              return res_data;
+
               
+          
           #### Let us invoke gnsrch api
           if (verbose > 3):
              print('GNPAppServer: search qry : '+srchqry_filtered);
