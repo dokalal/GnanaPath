@@ -17,14 +17,11 @@ warnings.simplefilter('ignore')
 
 from neo4j import GraphDatabase, basic_auth
 
+from  gndwdb_neo4j_conn import gndwdb_neo4j_conn_metarepo, gndwdb_neo4j_conn_datarepo;
 
 def        gn_neo4j_connect(uri, userName, passw, verbose):
     
     # Database Credentials
-    #uri = "bolt://192.168.0.59"
-    #userName = "neo4j"
-    #password = os.getenv("NEO4J_PASSWORD")
-    #password='ca$hc0w'
 
     try:
         # Connect to the neo4j database server
@@ -227,21 +224,17 @@ def                gndw_metarepo_metanode_add(graph_conn, nodename, node_attr_li
             
 def                gndw_metarepo_metanode_add_api(node_name, node_attr_list, verbose):
     # Database Credentials
-    uri = "bolt://172.17.0.4"
-    userName = "neo4j"
-    #password = os.getenv("NEO4J_PASSWORD")
-    passw = 'ca$hc0w'
     ret = 0
     
     ### Check db connection
-    graph_conn  = gn_neo4j_connect(uri, userName, passw,verbose)
-    
+    #graph_conn  = gn_neo4j_connect(uri, userName, passw,verbose)
+    graph_conn = gndwdb_neo4j_conn_metarepo(verbose);
 
     
-    gndw_metarepo_metanode_add(graph_conn, node_name, node_attr_list, verbose)
+    gndw_metarepo_metanode_add(graph_conn, node_name, node_attr_list, verbose);
     
     if (verbose > 1):
-        print("gndw_metarepo_metanode_add: Meta node "+node_name+" and attributes are added to metarepo")
+        print("gndw_metarepo_metanode_add: Meta node "+node_name+" and attributes are added to metarepo");
     
     return ret;
   
@@ -374,15 +367,11 @@ def                 gndw_datarepo_datanode_add(graph_conn, nodename, node_attr_l
 def              gndw_datarepo_datanode_add_api(node_name, node_attr_list, datanode_name, datanode_attr_list, verbose):
     
     # Database Credentials
-    uri = "bolt://172.17.0.6"
-    userName = "neo4j"
-    #password = os.getenv("NEO4J_PASSWORD")
-    passw = 'ca$hc0w'
     ret = 0
     
     ### Check db connection
-    graph_conn  = gn_neo4j_connect(uri, userName, passw,verbose)
-    
+    #graph_conn  = gn_neo4j_connect(uri, userName, passw,verbose)
+    graph_conn = gndwdb_neo4j_conn_datarepo(verbose);
     
     gndw_datarepo_datanode_add(graph_conn, node_name, node_attr_list, datanode_name, datanode_attr_list, verbose)
     
@@ -393,7 +382,7 @@ def              gndw_datarepo_datanode_add_api(node_name, node_attr_list, datan
     
     
 
-def     maintest_api():   
+def      maintest_api():   
      verbose = 3
     
      if( verbose > 0):
@@ -418,3 +407,12 @@ def     maintest_api():
     
   
     
+if  __name__ == "__main__":
+
+    verbose = 5;
+
+    if (verbose > 3):
+          print('gndwdb_neo4j_dbops: tesapi  ');
+
+          
+    maintest_api();
