@@ -26,13 +26,9 @@ sys.path.append(listDir);
 from gnutils.get_config_file import get_config_neo4j_conninfo_file;
 
 
-def gndwdb_neo4j_conn_connect(uri, userName, passw, verbose):
+def       gndwdb_neo4j_conn_connect(uri, userName, passw, verbose):
 
     # Database Credentials
-    #uri = "bolt://192.168.0.59"
-    #userName = "neo4j"
-    #password = os.getenv("NEO4J_PASSWORD")
-    #password='ca$hc0w'
 
     try:
         # Connect to the neo4j database server
@@ -52,12 +48,22 @@ def gndwdb_neo4j_conn_connect(uri, userName, passw, verbose):
 def             gndwdb_neo4j_conn_metarepo(verbose):
 
     # Database Credentials
-    uri = "bolt://172.17.0.10"
-    userName = "neo4j"
+    #uri = "bolt://172.17.0.10"
+    #userName = "neo4j"
     #password = os.getenv("NEO4J_PASSWORD")
-    passw = 'ca$hc0w'
+    #passw = 'ca$hc0w'
     ret = 0
+ 
+    ###cfgfile = './server_config.json';
+    conn_params = gndwdb_neo4j_conn_getconfig(verbose);
+    if (verbose > 3):
+       print('gndwdb_neo4j_conn: path for neo4j conn cfg: '+conn_params['uri']);
 
+    uri = conn_params['uri'];
+    userName = conn_params['userName'];
+    passw = conn_params['passw'];
+    
+    
     ### Check db connection
     graph_conn  = gndwdb_neo4j_conn_connect(uri, userName, passw,verbose)
 
@@ -68,19 +74,29 @@ def             gndwdb_neo4j_conn_metarepo(verbose):
 def            gndwdb_neo4j_conn_datarepo(verbose):
 
     # Database Credentials
-    uri = "bolt://172.17.0.6"
-    userName = "neo4j"
+    #uri = "bolt://172.17.0.6"
+    #userName = "neo4j"
     #password = os.getenv("NEO4J_PASSWORD")
-    passw = 'ca$hc0w'
+    #passw = 'ca$hc0w'
     ret = 0
 
+    ###cfgfile = './server_config.json';
+    conn_params = gndwdb_neo4j_conn_getconfig(verbose);
+    if (verbose > 3):
+       print('gndwdb_neo4j_conn: path for neo4j conn cfg: '+conn_params['uri']);
+
+    uri = conn_params['uri'];
+    userName = conn_params['userName'];
+    passw = conn_params['passw'];
+    
     ### Check db connection
     graph_conn  = gndwdb_neo4j_conn_connect(uri, userName, passw, verbose)
 
     return graph_conn
 
 
-def gndwdb_neo4j_conn_check_api(cfgfile, verbose):
+
+def             gndwdb_neo4j_conn_check_api(cfgfile, verbose):
 
       if (verbose > 3):
           print('gndwdb_neo4j_conn: parsing cfg file'+cfgfile);
@@ -113,6 +129,30 @@ def gndwdb_neo4j_conn_check_api(cfgfile, verbose):
           # return -1;          
 
 
+def      gndwdb_neo4j_conn_getconfig(verbose):
+
+      conn_params = dict();
+      ###cfgfile = './server_config.json';
+      cfg_file = get_config_neo4j_conninfo_file();
+      if (verbose > 3):
+         print('gndwdb_neo4j_conn: path for neo4j conn cfg: '+cfg_file);
+
+      ###with open(os.path.join(JSON_PATH, jfile)) as json_file:
+      with open(cfg_file) as cfg_jsonf:
+          cfg_json = json.load(cfg_jsonf);
+          print(cfg_json);
+
+          def_config = cfg_json['_default'];
+          nconfig = def_config['1'];
+          print(nconfig);
+          # read config list
+          conn_params['uri'] = "bolt://"+nconfig['serverIP'];
+          conn_params['userName'] = nconfig['username'];
+          conn_params['passw'] = nconfig['password'];
+
+          return (conn_params);
+ 
+             
         
 if   __name__ == "__main__":
 
