@@ -19,15 +19,15 @@ from neo4j.exceptions import ServiceUnavailable
 from  .gndwdb_neo4j_conn import gndwdb_neo4j_conn_metarepo, gndwdb_neo4j_conn_datarepo;
 
 
-#curentDir=os.getcwd()
-#listDir=curentDir.rsplit('/',1)[0]
+curentDir=os.getcwd()
+listDir=curentDir.rsplit('/',1)[0]
 #gndwdbDir=listDir+'/gndwdb'
-#if listDir not in sys.path:
-#    sys.path.append(listDir)
+if listDir not in sys.path:
+    sys.path.append(listDir)
 #if gndwdbDir not in sys.path:
 #    sys.path.append(gndwdbDir)
-#print(sys.path)
-
+##print(sys.path)
+from gnutils.replace_spl_chars import gnutils_filter_json_escval;
 
 
 class    gndwdbFetchApp:
@@ -157,7 +157,7 @@ class    gndwdbFetchApp:
                                         
                     nkval = node.get(nkey);
                     if (verbose > 5):
-                       print("GNDwFetchApp: getting node keys Record Key val "+str(nkval));
+                       print("GNDwFetchApp: getting node keys Record Key val "+gnutils_filter_json_escval(nkval));
                        
                     if (i >= 0):
                         njson += ','+"\n";
@@ -165,8 +165,8 @@ class    gndwdbFetchApp:
                     if (nkey == "id"):
                         nkey = "node_id";
                         
-                    njson += '   "'+str(nkey)+'":  "'+str(nkval)+'" ';
-                    ndict[nkey] = nkval;
+                    njson += '   "'+str(nkey)+'":  "'+gnutils_filter_json_escval(nkval)+'" ';
+                    ndict[nkey] = str(nkval);
                     i += 1;
 
                 njson += "\n";    
@@ -183,7 +183,7 @@ class    gndwdbFetchApp:
 
                  
 
-    def      find_nodes_return_rec(self, verbose):
+    def            find_nodes_return_rec(self, verbose):
         
         with self.driver.session() as session:
             njson = "{ "+"\n";
@@ -207,6 +207,7 @@ class    gndwdbFetchApp:
                 
                 ndict = self.convert_node_rec_json(node, verbose);
                 nj = ndict['jsonstr'];
+                ###nj = json.dumps(ndict);
                 njson += nj;
                 if (verbose > 4):
                     print('gndwdbFetchOps: convet node to json ele '+str(nnum));
@@ -281,8 +282,8 @@ class    gndwdbFetchApp:
               if (verbose > 4):
                  print("GNDwFetchApp: relation key:"+str(rkey)+" val:"+str(rkeyval));
                  
-              rdict[rkey] = rkeyval;   
-              rjson += '   "'+str(rkey)+'": "'+str(rkeyval)+'"';
+              rdict[rkey] = str(rkeyval);   
+              rjson += '   "'+str(rkey)+'": "'+gnutils_filter_json_escval(rkeyval)+'"';
               rk += 1; 
 
          rjson += "\n";      
@@ -329,7 +330,7 @@ class    gndwdbFetchApp:
               #   print(" Relationship key key: "+str(rkey));
               #   print(" Relationship val: "+str(rkeyval));
 
-              rdict[rkey] = rkeyval;
+              rdict[rkey] = str(rkeyval);
               
               #rjson += '   "'+str(rkey)+'": "'+str(rkeyval)+'"';
               rk += 1;
@@ -406,7 +407,8 @@ class    gndwdbFetchApp:
                         print(tdict);
                     nnum += 1;
 
-                rj = rdict['jsonstr'];  
+                rj = rdict['jsonstr'];
+                ##rj = json.dumps(rdict, indent=4);
                 rjson += rj;
                 rnum += 1;
 
@@ -426,6 +428,7 @@ class    gndwdbFetchApp:
                 if (nnum > 0):
                     nj += ', '+"\n";
                 nj += n['jsonstr'];
+                ####nj += json.dumps(n, indent=4);
                 nnum += 1;
 
             nj += "\n";
@@ -436,6 +439,9 @@ class    gndwdbFetchApp:
             retjson += ", "+"\n";
             retjson += nj;
             retjson += '}' +"\n";
+
+            #rlist_json = json.dumps(rel_list, indent=4);
+            #print(rlist_json);
             
             return(retjson);
     
@@ -474,22 +480,7 @@ def       gndwdb_metarepo_edges_fetch_api(verbose):
  
  
 if __name__ == "__main__":
-    # See https://neo4j.com/developer/aura-connect-driver/ for Aura specific connection URL.
-   # scheme = "bolt"  # Connecting to Aura, use the "neo4j+s" URI scheme
-   # host_name = "172.17.0.10"
-   # port = 7687
-    #url = "{scheme}://{host_name}:{port}".format(scheme=scheme, host_name=host_name, port=port)
-    #user = "neo4j"
-    #password = 'ca$hc0w';
-    #app = gndwdbFetchApp(url, user, password)
-    #app.create_friendship("Alice", "David")
-    ##app.find_person_return_rec("Alice");
-    verbose = 5;
-    #app.find_nodes_return_rec(verbose);
-##    app.find_rels_return_rec(verbose);
-    #app.close();
-    #njson = gndwdb_metarepo_nodes_fetch_api(verbose);
-    #print(njson);
+    verbose = 0;
     rjson = gndwdb_metarepo_edges_fetch_api(verbose);
     print(rjson);
     
