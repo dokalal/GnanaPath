@@ -183,8 +183,9 @@
 	    'Access-Control-Allow-Origin' : '*'
 	});
 	
-	//console.log('GNView: Fetch data1 ');
-	return fetch(edges_url, { method: 'GET', headers: myHeaders })
+	///console.log('GNView: Fetch data1 ');
+	try {
+   	   return fetch(edges_url, { method: 'GET', headers: myHeaders })
 	////	    fetch(edges_url, { method: 'GET',  headers: myHeaders })
 	
             .then (response => response.json())
@@ -227,15 +228,15 @@
 		      
               ////////// Get edges 
 
-	       console.log('GNView: Fetch Edges complete ');
-               console.log('GNView: data:'+JSON.stringify(data, null,3));
+	       //console.log('GNView: Fetch Edges complete ');
+               //console.log('GNView: data:'+JSON.stringify(data, null,3));
 	       var nodelen = data.edges.length;
 		      
 	       edges = '';
 
 		      ///s = '{'+"\n";
 		      ///edges += '['+"\n";
-	      console.log('GNView: fetch Edges complete len:'+nodelen);
+	      //console.log('GNView: fetch Edges complete len:'+nodelen);
 	      for (i=0; i < nodelen; i++) {
 	  
 		  if ( i > 0)
@@ -286,6 +287,10 @@
              ////////////////////////////////
 	 
 	    });
+	} catch(error) {
+	    console.log('Error caught '+error);
+	}
+
     }
       ///////////////Zooming
       var zx, zy;
