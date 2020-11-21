@@ -31,6 +31,7 @@ sys.path.append(listDir);
 
 ###### Imports required
 from gndwdb.gndwdb_neo4j_conn import gndwdb_neo4j_conn_metarepo, gndwdb_neo4j_conn_datarepo
+from gnutils.replace_spl_chars import gnutils_filter_json_escval;
 
 
 def           gnsrch_process_select_convert_cypher(sqlst, verbose):
@@ -111,9 +112,9 @@ def          gnsrch_process_sqlstr(sqlstr, meta_graph_conn,
                    if (a > 0):
                         rjson += ', '+"\n";
                    if (p == "name"):
-                      rjson += '"id": "'+str(pv)+'"';
+                      rjson += '"id": "'+gnutils_filter_json_escval(pv)+'"';
                    else:
-                      rjson += '"'+str(p)+'": "'+str(pv)+'"'; 
+                      rjson += '"'+str(p)+'": "'+gnutils_filter_json_escval(pv)+'"'; 
                    
                    ##print('nodeid-'+str(len)+' key:'+str(p)+' val:'+str(pv));
                    a = a + 1;
