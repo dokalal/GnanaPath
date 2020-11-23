@@ -6,16 +6,17 @@
 #################################################################
 
 import flask
-from flask import request, jsonify, request, redirect, render_template,flash,url_for,session,Markup
+from flask import request, jsonify, request, redirect, render_template,flash,url_for,session,Markup,abort
 from werkzeug.utils import secure_filename
 from flask_login import login_required, current_user, login_user, logout_user,LoginManager
 import sys,os
+import base64
 import reg_users
 from moz_sql_parser import parse
 import json,re
 from connect_form  import ConnectServerForm,LoginForm
 from collections import OrderedDict
-from tinydb import TinyDB,Query
+from gnp_db_ops import ConnectModel
 #### Append system path
 
 curentDir=os.getcwd();
@@ -76,17 +77,12 @@ def load_user(user_id):
     return all_users.get(user_id)
 
 @app.route('/', methods=['GET'])
-def      gn_home():
-	
-     '''htmlStr = '<h2>Welcome Gnanapath</h2>';
-     htmlStr += '<p> Gnanapath provide business data platform </p>';
-     return htmlStr;'''
-
-     return render_template('base_layout.html') #redirect(url_for('user_login'))
+def gn_home():
+    return render_template('base_layout.html') 
 
 @app.route('/upload', methods=['GET','POST'])
 @login_required
-def     upload_file():
+def upload_file():
     if request.method == 'GET':
        return render_template('upload.html') 
     if request.method == 'POST':
@@ -108,23 +104,31 @@ def     upload_file():
         flash(f'File {filename} successfully uploaded','success')
         return redirect('/')
 
+def neo4j_conn_check_api():
+    verbose = 0;
+    cfg_file = get_config_neo4j_conninfo_file();
+    res=gndwdb_neo4j_conn_check_api(cfg_file, verbose);    
+    return res
+
 @app.route("/connect", methods=['GET', 'POST'])
 @login_required
 def connect_server():
   
     form = ConnectServerForm()
+    connect = ConnectModel()
     if 'serverIP' in session:
-       flash(Markup('Already connected to neo4j server,Click <a href="/modify" class="alert-link"> here</a> to modify'),'warning')
+       srv_ip_encode = base64.urlsafe_b64encode(session['serverIP'].encode("utf-8"))
+       srv_encode_str = str(srv_ip_encode, "utf-8")
+       flash(Markup('Already connected to neo4j server,Click <a href=/modify/{}\
+             class="alert-link"> here</a> to modify'.format(srv_encode_str)),'warning')
        return redirect("/")
     if form.validate_on_submit():
         result = request.form.to_dict()
-        perform_ops_json(result,operation='insert');
-        verbose = 0;
-        cfg_file = get_config_neo4j_conninfo_file();
-        res=gndwdb_neo4j_conn_check_api(cfg_file, verbose);
+        connect.insert_op(result)
+        res=neo4j_conn_check_api();
         if res=="Error":
            flash(f'Error connecting to neo4j server {form.serverIP.data}', 'danger')
-           perform_ops_json(result,operation='delete')
+           connect.delete_op(result)
            return render_template('connect.html', title='Connect Graph Server', form=form)
         else:    
            session['serverIP']=form.serverIP.data
@@ -132,26 +136,40 @@ def connect_server():
            return redirect('/')
     return render_template('connect.html', title='Connect Graph Server', form=form)
 
-def perform_ops_json(dict_result,**dbop):
-    db=TinyDB('server_config.json')
-    Server_Details=Query()
-    req_items=['serverIP', 'username', 'password']
-    req_dict = {key:value for key, value in dict_result.items() if key in req_items}
-    if dbop['operation']=="insert":
-    	
-    	if not db.search(Server_Details.serverIP==req_dict['serverIP']):
-            db.insert(req_dict)
-    	else:    
-            print(f"Server Config file already contains details of IP {req_dict['serverIP']}") 
-    if dbop['operation']=="delete":
-        from tinydb import where
-        #db.update(delete('serverIP'), Server_Details.serverIP == req_dict['serverIP'])
-        db.remove(where('serverIP') == req_dict['serverIP'])   
-
-@app.route("/modify",methods=['GET','POST'])
+@app.route("/modify/<serverIP>",methods=['GET','POST'])
 @login_required
-def modify_conn_details():
-  return render_template("connect_modify.html", title='Modify connection details')
+def modify_conn_details(serverIP):
+  decoded_bytes = base64.b64decode(serverIP)
+  servIP = str(decoded_bytes, "utf-8")
+  form = ConnectServerForm()
+  connect=ConnectModel()
+  serv_details=connect.search_res(servIP)
+  if request.method=='GET':
+     form.serverIP.data = serv_details[0]['serverIP']
+     form.username.data = serv_details[0]['username']
+     form.password.data = serv_details[0]['password']
+     form.connect.label.text='Update'
+     return render_template("connect.html", title='Modify connection details',form=form)
+  if request.method=='POST':
+     if form.validate_on_submit():
+        result = request.form.to_dict()
+        connect.update_op(servIP,result)
+        res=neo4j_conn_check_api()
+        if res=="Error":
+           flash(f'Error connecting to neo4j server {form.serverIP.data}', 'danger')
+           form.connect.label.text='Update'
+           connect.delete_op(result)
+           session.pop('serverIP', None)
+           return redirect('/')  
+        flash('Connection details modified successfully','success')
+        session['serverIP']=form.serverIP.data
+        return redirect('/')
+     else:
+        flash('Error in  Server Connection parameters','danger')
+        form.connect.label.text='Update'
+        return render_template('connect.html', title='Modify connection details', form=form)
+
+ 
 
 @app.route("/logout/")
 @login_required
@@ -180,17 +198,6 @@ def user_login():
     login_user(user)
     flash("Please input the server config details",'success')
     return redirect(url_for('connect_server'))
-    #else:
-    #  flash(f'Error Login failed','danger')
-    #  return redirect(url_for('login_user'))
-    #return render_template('login.html', title='Login ', form=form)
-
-##### GnView
-#@app.route('/gnview', methods=['GET'])
-#def  gnview_api():
-#    print('GnApp: gnview is initiated');
-#    return render_template('gnview.html');
-
 
 
 @app.route('/gnsrchview', methods=['GET'])
@@ -344,7 +351,5 @@ def    gnmetaedges_fetch_api():
 
       
 if __name__ == '__main__':
-     
-
      app.run(host='0.0.0.0', port=5050, debug=True);
 
