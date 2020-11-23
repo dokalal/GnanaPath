@@ -16,9 +16,6 @@ from neo4j import GraphDatabase
 from neo4j.exceptions import ServiceUnavailable
 
 
-from  .gndwdb_neo4j_conn import gndwdb_neo4j_conn_metarepo, gndwdb_neo4j_conn_datarepo;
-
-
 curentDir=os.getcwd()
 listDir=curentDir.rsplit('/',1)[0]
 #gndwdbDir=listDir+'/gndwdb'
@@ -27,10 +24,12 @@ if listDir not in sys.path:
 #if gndwdbDir not in sys.path:
 #    sys.path.append(gndwdbDir)
 ##print(sys.path)
-from gnutils.replace_spl_chars import gnutils_filter_json_escval;
+from    gnutils.replace_spl_chars import gnutils_filter_json_escval;
+from    gndwdb.gndwdb_neo4j_conn  import gndwdb_neo4j_conn_metarepo, gndwdb_neo4j_conn_datarepo;
 
 
-class    gndwdbFetchApp:
+
+class         gndwdbFetchApp:
 
     def __init__(self, driverconnp):
         ###self.driver = GraphDatabase.driver(uri, auth=(user, password))
@@ -42,7 +41,7 @@ class    gndwdbFetchApp:
 
 
 
-    def find_node_byname(self, node_name, verbose):
+    def    find_node_byname(self, node_name, verbose):
         with self.driver.session() as session:
             result = session.read_transaction(self._find_and_return_node, node_name);
 
@@ -342,16 +341,16 @@ class    gndwdbFetchApp:
      
 
             
-    def            find_edges_return_rec(self, verbose):
+    def            find_edges_return_rec(self, rel_type,verbose):
             
-        with self.driver.session() as session:
+        with   self.driver.session() as session:
             #rjson = " { "+"\n";
             rel_list= {};
             nodelist = {};
             nnum = 0;
             
             query = (
-                 "MATCH ()-[r]->() "
+                 "MATCH ()-[r:"+rel_type+"]->() "
                 ###"WHERE p.name = $person_name "
                 " RETURN r LIMIT 10"
             )
@@ -461,12 +460,13 @@ def       gndwdb_metarepo_nodes_fetch_api(verbose):
      return njson;
 
  
-def       gndwdb_metarepo_edges_fetch_api(verbose):
+def        gndwdb_metarepo_edges_fetch_api(verbose):
 
      graph_connp = gndwdb_neo4j_conn_metarepo(verbose);
 
      fetchApp = gndwdbFetchApp(graph_connp);
-     rjson = fetchApp.find_edges_return_rec(verbose);
+     rel_type="HAS_ATTR";
+     rjson = fetchApp.find_edges_return_rec(rel_type, verbose);
      #reljson = fetchApp.find_rels_return_rec(verbose);
      #rjson = '{ '."\n";
      #rjson += njson;
@@ -476,6 +476,20 @@ def       gndwdb_metarepo_edges_fetch_api(verbose):
      return rjson;
 
 
+def        gndwdb_datarepo_edges_fetch_api(verbose):
+
+     graph_connp = gndwdb_neo4j_conn_datarepo(verbose);
+
+     fetchApp = gndwdbFetchApp(graph_connp);
+     rel_type="IS";
+     rjson = fetchApp.find_edges_return_rec(rel_type, verbose);
+     #reljson = fetchApp.find_rels_return_rec(verbose);
+     #rjson = '{ '."\n";
+     #rjson += njson;
+     #rjson += ','."\n";
+
+     fetchApp.close();
+     return rjson;
 
  
  
@@ -483,4 +497,6 @@ if __name__ == "__main__":
     verbose = 0;
     rjson = gndwdb_metarepo_edges_fetch_api(verbose);
     print(rjson);
+    djson = gndwdb_datarepo_edges_fetch_api(verbose);
+    print(djson);
     
