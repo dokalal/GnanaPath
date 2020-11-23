@@ -102,12 +102,14 @@ def           gndwdb_neo4j_conn_datarepo_close(graph_conn, verbose):
 def             gndwdb_neo4j_conn_check_api(cfgfile, verbose):
 
       if (verbose > 3):
-           print('gndwdb_neo4j_conn: parsing cfg file'+cfgfile);
+           print('gndwdb_neo4j_conn: parsing cfg file:'+cfgfile);
           
       ###with open(os.path.join(JSON_PATH, jfile)) as json_file:
       with open(cfgfile) as cfg_jsonf: 
           cfg_json = json.load(cfg_jsonf);
-          print(cfg_json);
+          
+          if (verbose > 5):
+             print(cfg_json);
 
           def_config = cfg_json['_default'];
           nconfig = def_config['1'];
