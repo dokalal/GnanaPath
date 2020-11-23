@@ -17,7 +17,7 @@ warnings.simplefilter('ignore')
 
 from neo4j import GraphDatabase, basic_auth
 
-from  gndwdb_neo4j_conn import gndwdb_neo4j_conn_metarepo, gndwdb_neo4j_conn_datarepo;
+from  gndwdb_neo4j_conn import gndwdb_neo4j_conn_metarepo, gndwdb_neo4j_conn_datarepo, gndwdb_neo4j_conn_metarepo_close, gndwdb_neo4j_conn_datarepo_close;
 
 def        gn_neo4j_connect(uri, userName, passw, verbose):
     
@@ -93,7 +93,7 @@ def                gndw_metarepo_metanode_check(graph_conn,  nodename, verbose):
     with graph_conn.session() as grpDB_Ses:
         #### Verify that the node does not exist first
 
-        cqlqry = "MATCH(x:"+str(nodename_filtered)+" {name:'"+gndw_dtval_filter(nodename)+"', type:'TableNode'}) return x"
+        cqlqry = "MATCH(x:"+str(nodename_filtered)+" {name:'"+gndw_dtval_filter(nodename)+"', type:'TableMetaNode'}) return x"
         nodes = grpDB_Ses.run(cqlqry)
         len = 0
         for n in nodes:
@@ -125,7 +125,7 @@ def                gndw_metarepo_metanode_add(graph_conn, nodename, node_attr_li
     with graph_conn.session() as grpDB_Ses:
        #### Verify that the node does not exist first
                     
-       cqlqry = "MATCH(x:"+str(nodename_filtered)+" {name:'"+gndw_dtval_filter(nodename)+"', type:'TableNode'}) return x"
+       cqlqry = "MATCH(x:"+str(nodename_filtered)+" {name:'"+gndw_dtval_filter(nodename)+"', type:'TableMetaNode'}) return x"
        nodes = grpDB_Ses.run(cqlqry)
        len = 0
        for n in nodes:
@@ -136,16 +136,16 @@ def                gndw_metarepo_metanode_add(graph_conn, nodename, node_attr_li
    
        if (len == 0):
             ##### Create new tablenode  entity does not exist in db
-            cqlqry = "CREATE (d:"+nodename_filtered+" {name:'"+gndw_dtval_filter(nodename)+"' , type:'TableNode'})"
+            cqlqry = "CREATE (d:"+nodename_filtered+" {name:'"+gndw_dtval_filter(nodename)+"' , type:'TableMetaNode'})"
             if (verbose > 1):
                 print("gndw_metarepo_metanode_add: new meta CQLqry", cqlqry)
             grpDB_Ses.run(cqlqry)
             
        else:
             if (verbose > 1):
-                print("gndw_metarepo_metanode_add: TableNode "+gndw_dtval_filter(nodename)+ " already exist")
+                print("gndw_metarepo_metanode_add: TableMetaNode "+gndw_dtval_filter(nodename)+ " already exist")
        
-       ##### Check TableAttrNodes exist 
+       ##### Check TableMetaAttrNodes exist 
        #attr_list {attr1: attrname, attr2: attrname, }
        attr_len = 0
        for k, v in node_attr_list.items():
@@ -157,7 +157,7 @@ def                gndw_metarepo_metanode_add(graph_conn, nodename, node_attr_li
 
             attrname_filtered = gndw_nodelabel_filter(attrname, 'GNNodeAttr', verbose)        
             ### Add new node for attribute
-            cqlqry = "MATCH(x:"+str(attrname_filtered)+" {name:'"+gndw_dtval_filter(attrname)+"', type:'TableAttrNode'}) return x"
+            cqlqry = "MATCH(x:"+str(attrname_filtered)+" {name:'"+gndw_dtval_filter(attrname)+"', type:'TableMetaAttrNode'}) return x"
             nodes = grpDB_Ses.run(cqlqry)
             
             len = 0
@@ -165,16 +165,16 @@ def                gndw_metarepo_metanode_add(graph_conn, nodename, node_attr_li
                 len = len + 1
             
             if (len == 0):
-                #### TableAttrNode does not exist and add new node
-                cqlqry = "CREATE (d:"+attrname_filtered+" {name:'"+gndw_dtval_filter(attrname)+"' , type:'TableAttrNode'})"
+                #### TableMetaAttrNode does not exist and add new node
+                cqlqry = "CREATE (d:"+attrname_filtered+" {name:'"+gndw_dtval_filter(attrname)+"' , type:'TableMetaAttrNode'})"
                 if (verbose > 1):
-                    print("gndw_metarepo_metadata_add: new qry to add TableAttrNode CQLqry:", cqlqry)
+                    print("gndw_metarepo_metadata_add: new qry to add TableMetaAttrNode CQLqry:", cqlqry)
                     
                 grpDB_Ses.run(cqlqry)
                 
             else:
                 if (verbose > 1):
-                    print("gndw_metarepo_metadata_add: TableAttrNode:"+attrname_filtered+" exists")
+                    print("gndw_metarepo_metadata_add: TableMetaAttrNode:"+attrname_filtered+" exists")
             
             #### Now add relationship between tablenode and tablenodeattr
             cqledgeqry = "MATCH (d:"+str(nodename_filtered)+" {name:'"+gndw_dtval_filter(nodename)+"'})-[r]-(a:"+attrname_filtered+" {name:'"+gndw_dtval_filter(attrname)+"'}) return TYPE(r), PROPERTIES(r)"        
@@ -193,27 +193,27 @@ def                gndw_metarepo_metanode_add(graph_conn, nodename, node_attr_li
 
                     
             if (verbose > 1):    
-               print("gndw_metarepo_metanode_add: TableAttrNode HAS_ATTR relship rcount: "+str(rcount))
+               print("gndw_metarepo_metanode_add: TableMetaAttrNode HAS_ATTR relship rcount: "+str(rcount))
             
             if (len == 0):
                 
                if (verbose > 1):
-                   print("gndw_metarepo_metanode_add: TableAttrNode HAS_ATTR rel does not exist ")
+                   print("gndw_metarepo_metanode_add: TableMetaAttrNode HAS_ATTR rel does not exist ")
     
                cqlrelins =  "MATCH (d:"+str(nodename_filtered)+"), (p:"+str(attrname_filtered)+") WHERE d.name ='"+gndw_dtval_filter(nodename)+"' AND p.name = '"+gndw_dtval_filter(attrname)+"' CREATE (d)-[:HAS_ATTR {count: 1}]->(p)"
 
                if (verbose > 2):
-                   print("gndw_metarepo_metanode_add: TableAttrNode:"+gndw_dtval_filter(attrname)+" HAS_ATTR relship qry :")
+                   print("gndw_metarepo_metanode_add: TableMetaAttrNode:"+gndw_dtval_filter(attrname)+" HAS_ATTR relship qry :")
                    print(cqlrelins)
                 
                grpDB_Ses.run(cqlrelins)
             
             else:
-                print("gndw_metarepo_metanode_add: TableAttrNode HAS_ATTR relship already exists with rcount:"+str(rcount))
+                print("gndw_metarepo_metanode_add: TableMetaAttrNode HAS_ATTR relship already exists with rcount:"+str(rcount))
               
                 cqlrelins = "MATCH (x:"+str(nodename_filtered)+" {name:'"+gndw_dtval_filter(nodename)+"'})-[r]->(y:"+attrname_filtered+" {name:'"+gndw_dtval_filter(attrname)+"'}) SET r.count="+str(rcount+1)+" RETURN r.count" 
                 if (verbose > 2):
-                    print("gndw_metarepo_metanode_add: TableAttrNode HAS_ATTR relship updating rcount qry:"+cqlrelins)
+                    print("gndw_metarepo_metanode_add: TableMetaAttrNode HAS_ATTR relship updating rcount qry:"+cqlrelins)
                 grpDB_Ses.run(cqlrelins)  
             
 
@@ -235,7 +235,9 @@ def                gndw_metarepo_metanode_add_api(node_name, node_attr_list, ver
     
     if (verbose > 1):
         print("gndw_metarepo_metanode_add: Meta node "+node_name+" and attributes are added to metarepo");
-    
+
+    gndwdb_neo4j_conn_metarepo_close(graph_conn, verbose);
+        
     return ret;
   
     
@@ -362,7 +364,48 @@ def                 gndw_datarepo_datanode_add(graph_conn, nodename, node_attr_l
               print("gndw_datarepo_datanode_add: DataNode IS relship update qry :"+cqlrelins)
           grpDB_Ses.run(cqlrelins)  
     
+
+def               gndw_metarepo_metanode_deleteall(graph_conn, verbose):
+
+        if (verbose > 0):
+              print("gndw_metarepo_metanode_deleteall:*****WARNING**** DELETING all metanodes");
+
+        with graph_conn.session() as grpDB_Ses:
+
+           ### DETACH and delete all TableDataNodes
+           cqlqry = "MATCH(x {type:'TableMetaAttrNode'}) DETACH DELETE x";
+           res = grpDB_Ses.run(cqlqry);
+
+           if (verbose > 3):
+               print("gndw_metarepo_metanode_deleteall:*****WARNING*** All TableMetaAttrNodes are deleted");
+
+           ### DETACH and delete all TableDataNodes
+           cqlqry = "MATCH(x {type:'TableMetaNode'}) DETACH DELETE x";
+           res = grpDB_Ses.run(cqlqry);
+
+           if (verbose > 3):
+               print("gndw_metarepo_metanode_deleteall:*****WARNING*** All TableMetaNodes are deleted");
     
+          
+
+def               gndw_datarepo_datanode_deleteall(graph_conn, verbose):
+
+        if (verbose > 0):
+           print("gndw_datarepo_datanode_deleteall:*****WARNING**** DELETING all datanodes");
+        
+        with graph_conn.session() as grpDB_Ses:
+
+           ### DETACH and delete all TableDataNodes  
+           cqlqry = "MATCH(x {type:'TableDataNode'}) DETACH DELETE x";
+           res = grpDB_Ses.run(cqlqry);
+           
+           if (verbose > 3):
+               print("gndw_datarepo_datanode_deleteall:*****WARNING*** All TableDateNodes are deleted");
+
+        
+
+
+          
 #####################################################################    
 def              gndw_datarepo_datanode_add_api(node_name, node_attr_list, datanode_name, datanode_attr_list, verbose):
     
@@ -377,35 +420,88 @@ def              gndw_datarepo_datanode_add_api(node_name, node_attr_list, datan
     
     if (verbose > 1):
         print("gndw_datanode_add_api: Data Node is added")
+
+    gndwdb_neo4j_conn_datarepo_close(graph_conn, verbose);
     
     return ret;
     
-    
 
-def      maintest_api():   
-     verbose = 3
+
+def            gndw_nodes_deleteall_api(verbose):
+
+    ret = 0;
+    if (verbose > 3):
+        print('gndw_nodes_deleteall_api:*****WARNING***** Deleting all nodes ');
+
+    ### First delete in datarepo
+    graph_conn = gndwdb_neo4j_conn_datarepo(verbose);
+
+    if (verbose > 3):
+        print('gndw_nodes_deleteall_api: DELETE datarepo nodes ');
+
+    gndw_datarepo_datanode_deleteall(graph_conn, verbose);
+
+    if (verbose > 3):
+        print('gndw_nodes_deleteall_api: DELETEed datarepo nodes ');
+    gndwdb_neo4j_conn_datarepo_close(graph_conn, verbose);
     
-     if( verbose > 0):
-            print("gndw_module_start: Start the module")
+    ### First delete in datarepo
+    graph_conn = gndwdb_neo4j_conn_metarepo(verbose);
+
+    if (verbose > 3):
+        print('gndw_nodes_deleteall_api: DELETE metarepo nodes ');
+
+    gndw_metarepo_metanode_deleteall(graph_conn, verbose);
+
+    if (verbose > 3):
+        print('gndw_nodes_deleteall_api: DELETEed datarepo nodes ');
+    gndwdb_neo4j_conn_metarepo_close(graph_conn, verbose);
+
+
+def        clean_data_test_api():
+
+    verbose = 5;
+    if (verbose > 4):
+        print('clean_data_test_api(): clean data test api ');
+
+
+    ret = gndw_nodes_deleteall_api(verbose);
+
+    
+    
+def        add_data_test_api():
+    
+     verbose = 5;
+    
+     if( verbose > 2):
+            print("add_data_test_api(): Add data node test ")
   
-     node_name = 'test1'
+     node_name = 'customer'
      #node_attr_list =  {'attr1': '1', 'attr2': 'custemail', 'attr3': 'addrline', 'attr4': 'city', 'attr5': 'state', 'attr6': 'country', 'attr7': 'zip', 'attr8': 'custphone'}
 
-     node_attr_list = {'attr1':'1at', 'attr2':'2at'};
+     node_attr_list = {'attr1': 'customerid', 'attr2': 'custemail', 'attr3':'addrline', 'attr4':'city', 'attr5':'state', 'attr6':'country', 'attr7':'zip', 'attr8':'custphone',  'attr9':'customattr9'};
+     
+     ####                  'attr10':'2a\'ttr2'};
      ### Add new node       
      ret = gndw_metarepo_metanode_add_api(node_name, node_attr_list, verbose)
         
      if (verbose > 1):
         print("gndw_neo4j_db: metaadd node returned "+str(ret))
         
-     datanode_name = '2'
-     #datanode_attr_list = {'customerid':'1', 'custname':'John Smith'}
-     #datanode_attr_list = {'customerid ': 1, 'custemail': 'a@a.com', 'addrline': '45 sdsds 34343', 'city': 'Boston', 'state': 'MA', 'country': 'US', 'zip': 2110, 'custphone': '123-232-2323'}
+     datanode_name = 'cust1'
+     datanode_attr_list = {'customerid ': 1, 'custemail': 'a@a.com', 'addrline': '45 sdsds 34343', 'city': 'Boston', 'state': 'MA', 'country': 'US', 'zip': 2110, 'custphone': '123-232-2323', 'customattr9':'Spl"C'};
+     ##, '2a\'ttr2':"Spl' s"};
 
-     datanode_attr_list  = {'1at': 'Spl"C', '2at':"Spl' s"}
+     #datanode_attr_list2  = {'1at': 'Spl"C', '2at':"Spl' s"}
      gndw_datarepo_datanode_add_api(node_name, node_attr_list, datanode_name, datanode_attr_list, verbose)
-    
-  
+
+
+     datanode_name2 = 'cust2'
+     datanode_attr_list2 = {'customerid ': 2, 'custemail': 'ba@a.com', 'addrline': '27 Baker street', 'city': 'Foxboro', 'state': 'MA', 'country': 'US', 'zip': '02210', 'custphone': '741-122-2323', 'customattr9':'NothnSpl'};
+
+
+     gndw_datarepo_datanode_add_api(node_name, node_attr_list, datanode_name2, datanode_attr_list2, verbose)
+
     
 if  __name__ == "__main__":
 
@@ -415,4 +511,5 @@ if  __name__ == "__main__":
           print('gndwdb_neo4j_dbops: tesapi  ');
 
           
-    maintest_api();
+    add_data_test_api();
+    ###clean_data_test_api();
