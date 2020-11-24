@@ -1,4 +1,4 @@
-###################################################################################
+######################################################################
 #  GnanaSearch main module
 #
 #   through gnsrch module, 
@@ -6,12 +6,11 @@
 #   - INSERT and UPDATE  are not supported
 #   - Other SQL commands syntax are not *yet* supported
 #
-####################################################################################
+######################################################################
 
 
 from moz_sql_parser import parse
 import json
-
 import numpy as np
 import neo4j
 import warnings
@@ -30,8 +29,10 @@ sys.path.append(listDir);
 #print(sys.path);
 
 ###### Imports required
-from gndwdb.gndwdb_neo4j_conn import gndwdb_neo4j_conn_metarepo, gndwdb_neo4j_conn_datarepo
-from gnutils.replace_spl_chars import gnutils_filter_json_escval;
+from   gndwdb.gndwdb_neo4j_conn import gndwdb_neo4j_conn_metarepo, gndwdb_neo4j_conn_datarepo
+from   gnutils.replace_spl_chars import gnutils_filter_json_escval;
+from   gndwdb.gndwdb_neo4j_fetchops import gndwdb_datarepo_edges_fetch_api;
+
 
 
 def           gnsrch_process_select_convert_cypher(sqlst, verbose):
@@ -132,8 +133,16 @@ def          gnsrch_process_sqlstr(sqlstr, meta_graph_conn,
 ############API to send srch string  and return json output 
 def                  gnsrch_sqlqry_api(sqlstr,  verbose):
 
+      slen = len(sqlstr);
+
+      if (slen == 0):
+           ### Empty search string get all data nodes
+           rjson = gnsrch_datarepo_fetch_nodes_api(verbose);
+           return (rjson);
+           
+           
       if (verbose > 3):
-          print('gnrch_sqlqry_api: Starting search api ');
+          print('gnrch_sqlqry_api: Starting search api '+sqlstr);
 
       meta_graph_conn = gndwdb_neo4j_conn_metarepo(verbose);
       data_graph_conn = gndwdb_neo4j_conn_datarepo(verbose);
@@ -142,30 +151,27 @@ def                  gnsrch_sqlqry_api(sqlstr,  verbose):
                                   data_graph_conn, verbose);
 
       return ret;    
+
+def             gnsrch_datarepo_fetch_nodes_api(verbose):
+
+     if (verbose > 3):
+          print('gnsrch_datarepo_fetch_nodes: fetching data repo nodes ');
+     rjson = gndwdb_datarepo_edges_fetch_api(verbose);
     
+     return(rjson);
     
-    
-    
-if __name__ == '__main__':
+if      __name__ == '__main__':
     
     sqlst = "SELECT * from product;"
     ### Setting up metarepo and db repo conns
     verbose = 6
-    ##meta_graph_conn = gndwdb_neo4j_conn_metarepo(verbose)
-    ###data_graph_conn = gndwdb_neo4j_conn_datarepo(verbose)
-    
-    #cql = gnsrch_process_select_convert_cypher(sqlst, verbose); 
-    
-    #if (cql):
-    #    if (verbose > 3):
-    #       print('gnsrch: cql qry returned:'+cql);
-    curentDir=os.getcwd();
-    listDir=curentDir.rsplit('/',1)[0];
-    print(' Test listdir: '+listDir)
-    print(sys.path);
     
     rjson = gnsrch_sqlqry_api(sqlst,  verbose);
 
     if (verbose > 3):
-        print('gnsrch_process: rjson:');
+        print('gnsrch_sql_srchops: rjson:');
         print(rjson);
+
+    djson = gnsrch_datarepo_fetch_nodes_api(verbose);
+
+    print(djson);
