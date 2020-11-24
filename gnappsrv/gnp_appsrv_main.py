@@ -116,9 +116,9 @@ def connect_server():
   
     form = ConnectServerForm()
     connect = ConnectModel()
-    if 'serverIP' in session:
+    if 'serverIP' in session and connect.search_res(session['serverIP']):
        srv_ip_encode = base64.urlsafe_b64encode(session['serverIP'].encode("utf-8"))
-       srv_encode_str = str(srv_ip_encode, "utf-8")
+       srv_encode_str = str(srv_ip_encode, "utf-8") 
        flash(Markup('Already connected to neo4j server,Click <a href=/modify/{}\
              class="alert-link"> here</a> to modify'.format(srv_encode_str)),'warning')
        return redirect("/")
@@ -144,6 +144,10 @@ def modify_conn_details(serverIP):
   form = ConnectServerForm()
   connect=ConnectModel()
   serv_details=connect.search_res(servIP)
+  if not serv_details:
+     flash(f"No connection details exist to modify",'warning')
+     session.pop('serverIP',None)
+     return render_template('connect.html', title='Connect Graph Server', form=form)      
   if request.method=='GET':
      form.serverIP.data = serv_details[0]['serverIP']
      form.username.data = serv_details[0]['username']
