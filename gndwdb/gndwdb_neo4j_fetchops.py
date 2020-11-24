@@ -445,7 +445,7 @@ class         gndwdbFetchApp:
             return(retjson);
     
     
-def       gndwdb_metarepo_nodes_fetch_api(verbose):
+def          gndwdb_metarepo_nodes_fetch_api(verbose):
 
      graph_connp = gndwdb_neo4j_conn_metarepo(verbose);
      
