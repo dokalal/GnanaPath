@@ -229,12 +229,12 @@ def   gnsrch_api():
           srchqry_filtered = dequote(srchqry);
 
           slen = len(srchqry_filtered);
-          if (slen == 0):
-              res_data = '';
+          #if (slen == 0):
+          #    res_data = '';
 
-              if (verbose > 3):
-                  print('GNPAppServer: Input search qry string is empty');
-              return res_data;
+          #    if (verbose > 3):
+          #        print('GNPAppServer: Input search qry string is empty');
+          #    return res_data;
 
               
           
