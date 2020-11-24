@@ -169,6 +169,8 @@
 	///var srv = 'http://45.79.206.248:5050';	
 	///var url = '/static/cola/js/product.json';
 	var srchstr = document.getElementById('srchid').value;
+	var nodes;
+	var edges;
 
 	console.log('GNView: sql txt srch '+srchstr);
 	var url = "/api/v1/search?srchqry='"+srchstr+"'";
@@ -187,33 +189,88 @@
 		    )
           .then (response => response.json())
           .then (data => {
-             console.log('GNView: Fetch complete ');
-             console.log('GNView: data:'+JSON.stringify(data, null,3));
-             var nodelen = data.nodes.length;
 
-             var   s = '';
+	      if (data) {  
+		  console.log('GNView: Fetch complete ');
+		  console.log('GNView: data:'+JSON.stringify(data, null,3));
+	      }
+	      
+            var nodelen = data.nodes.length;
+            var   s = '';
+	      
+            nodes = ''; 
 
-            ///s = '{'+"\n";
-            s += '['+"\n";
             console.log('GNView: fetch complete len:'+nodelen);
             for (i=0; i < nodelen; i++) {
+                if ( i > 0) {
+		    nodes += ","+"\n";
+		}
 
-                if ( i > 0)
-                    s+= ",";
-
-                s += '{';
+		nodes += '{';
 		n = data.nodes[i];
-                s += '"data": {';
-
+                nodes += '"data": {';
+                var idint = parseInt(n.id);
+		
                 ///console.log('GNView node-'+i+' id '+n.id);
-                s+= '"id": "'+n.id+'", ';
-		s+= '"idInt": '+(i+1)+',';
-		s+= '"name": "'+n.id+'", ';
-		s+= '"query": true ';
-                s+= '}}';
-
+                nodes+= '"id": "n'+n.id+'", ';
+		nodes+= '"idInt": '+(idint)+',';
+		nodes+= '"name": "'+n.name+'", ';
+		nodes+= '"query": true ';
+                nodes+= '},'+"\n";
+                nodes+= '"group" : "nodes",'+"\n";
+                nodes+= '"removed": false,'+"\n";
+                nodes+= '"selected": false,'+"\n";
+                nodes+= '"selectable": true,'+"\n";
+                nodes+= '"grabbable": true,'+"\n";
+                nodes+= '"locked": false'+"\n";
+                nodes+= '}';
             }
-            s += ']'+"\n";
+
+            ////// Get edges
+            var nodelen = data.edges.length;
+
+            edges = '';
+
+	     for (i=0; i < nodelen; i++) {
+
+                  if ( i > 0)
+                      edges += ",";
+
+                  edges += '{';
+                  e = data.edges[i];
+                  edges += '"data": {';
+                  var idint = parseInt(e.id);
+                  ///console.log('GNView node-'+i+' id '+n.id);
+                  edges += '"id": "e'+e.id+'", ';
+                  edges += '"idInt": '+(idint)+',';
+                   edges += '"relname": "'+(e.type)+'" ,';
+                  edges += '"source": "n'+e.source+'" ,';
+                  edges += '"target": "n'+e.target+'" ,';
+                  edges += '"directed": true ';
+                  //edges += '"name": "'+n.name+'", ';
+                  //edges += '"query": true ';
+                  edges += '},'+"\n";
+  
+                  edges += '"position": {},';
+                  edges += '"group": "edges",';
+                  edges += '"removed": false,';
+                  edges += '"selected": false,';
+                  edges += '"selectable": true, ';
+                  edges += '"locked": false, ';
+                  edges += '"grabbable": true, ';
+                  edges += '"directed": true';
+                  edges += '}'+"\n";
+                }
+ 
+               s = '['+"\n";
+               s += nodes;
+               s += ','+"\n";
+               s += edges;
+               s += '\n';
+               s += ']'+"\n";
+               console.log('GNView nodes & edges:  '+s);
+		 
+	      
             ////s += '}'+"\n";
             console.log('GNView nodes:  '+s);
             gn_elements = JSON.parse(s);
