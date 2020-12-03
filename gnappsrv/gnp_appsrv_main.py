@@ -17,18 +17,21 @@ import json,re
 from connect_form  import ConnectServerForm,LoginForm
 from collections import OrderedDict
 from gnp_db_ops import ConnectModel
+
 #### Append system path
 
 curentDir=os.getcwd();
 listDir=curentDir.rsplit('/',1)[0];
 #print(' Test listdir: '+listDir)
 sys.path.append(listDir);
+sys.path.append(listDir+'/gndatadis');
 
 
 from gnsearch.gnsrch_sql_srchops  import gnsrch_sqlqry_api;
 from gndwdb.gndwdb_neo4j_fetchops import gndwdb_metarepo_nodes_fetch_api, gndwdb_metarepo_edges_fetch_api;
 from gndwdb.gndwdb_neo4j_conn import  gndwdb_neo4j_conn_check_api;
 from gnutils.get_config_file import get_config_neo4j_conninfo_file;
+from gndd_csv_load import gndwdbDataUpload; #to upload Files.
 
 
 def    dequote(s):
@@ -100,6 +103,7 @@ def upload_file():
         elif files and allowed_file(files.filename):
             filename = secure_filename(files.filename)
             files.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            gndwdbDataUpload(app.config['UPLOAD_FOLDER'], filename)
 
         flash(f'File {filename} successfully uploaded','success')
         return redirect('/')

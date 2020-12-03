@@ -42,10 +42,12 @@ class ParseCSV:
             else:
                 raise ValueException('Missing file path')
 
-            if self.file_type=='remote':
+            if self.file_type=='json':
                 self.df=self.read_json_url()
+            elif self.file_type=='csv':
+                self.df=pd.read_csv(self.file_path,skiprows=0)
             else:
-                self.df=pd.read_csv(self.file_path,skiprows=0)   
+                raise ValueException('Not Valid file Extension')                
                 
                 
     #return header dict
@@ -115,35 +117,49 @@ class gndwdbCall:
             print(self.datanode_name)
             self.gndwdbDataNode()
             
-  
-            
-        
-    
-data=LoadConfigUtil.get_config_data()
-file_name=data['FilePathCSV']['local_path'].split('.')[0]
-print(file_name)
-file_path=data['FilePathCSV']['local_path']
-file_path=os.path.join(LoadConfigUtil.SAMPLE_DATA,file_path)
-print(file_path)
-p=ParseCSV(path=file_path)
-p.ret_header_dict()
-print(p.col_dict)
-# gndb=gndwdbCall(fil_name=file_name,colum_list=p.col_dict,df_data=p.df)
-# gndb.gndwdbMetaNode()
-# gndb.gndwdbDataNodeCall()
 
-
-for file_path in data['FilePathCSV']['local_path_list'] :
-    file_name=file_path.split('.')[0]
+def gndwdbDataUpload(filePath,fileName):
+    file_name=fileName
+    file_path=os.path.join(filePath, file_name)
     print(file_name)
-    file_path=os.path.join(LoadConfigUtil.SAMPLE_DATA,file_path)
     print(file_path)
-    p=ParseCSV(path=file_path)
-#     print(p.df)
+    file_name,file_ext = file_name.split(".")
+    p=ParseCSV(path=file_path,type=file_ext)
     p.ret_header_dict()
-    print(p.col_dict)
     gndb=gndwdbCall(fil_name=file_name,colum_list=p.col_dict,df_data=p.df)
     gndb.gndwdbMetaNode()
     gndb.gndwdbDataNodeCall()
-    
 
+
+def gndwdbData_check():
+    data=LoadConfigUtil.get_config_data()
+    file_name=data['FilePathCSV']['local_path'].split('.')[0]
+    print(file_name)
+    file_path=data['FilePathCSV']['local_path']
+    file_path=os.path.join(LoadConfigUtil.SAMPLE_DATA,file_path)
+    print(file_path)
+    p=ParseCSV(path=file_path)
+    p.ret_header_dict()
+    print(p.col_dict)
+    # gndb=gndwdbCall(fil_name=file_name,colum_list=p.col_dict,df_data=p.df)
+    # gndb.gndwdbMetaNode()
+    # gndb.gndwdbDataNodeCall()
+
+
+    for file_path in data['FilePathCSV']['local_path_list'] :
+        file_name=file_path.split('.')[0]
+        print(file_name)
+        file_path=os.path.join(LoadConfigUtil.SAMPLE_DATA,file_path)
+        print(file_path)
+        p=ParseCSV(path=file_path)
+    #     print(p.df)
+        p.ret_header_dict()
+        print(p.col_dict)
+        gndb=gndwdbCall(fil_name=file_name,colum_list=p.col_dict,df_data=p.df)
+        gndb.gndwdbMetaNode()
+        gndb.gndwdbDataNodeCall()
+
+if   __name__ == "__main__":
+    filePath="/home/jovyan/GnanaPath/gnappsrv/uploads" 
+    fileName="product_sample.csv"
+    gndwdbDataUpload(filePath,fileName)
