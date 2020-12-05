@@ -171,7 +171,9 @@
 	var srchstr = document.getElementById('srchid').value;
 	var nodes;
 	var edges;
-
+        var errlbl = document.getElementById('errorlbl');
+	var statuslbl = document.getElementById('statuslbl');
+	
 	console.log('GNView: sql txt srch '+srchstr);
 	var url = "/api/v1/search?srchqry='"+srchstr+"'";
 	
@@ -195,47 +197,53 @@
 		  console.log('GNView: data:'+JSON.stringify(data, null,3));
 	      }
 	      
-            var nodelen = data.nodes.length;
-            var   s = '';
+              var nodelen = data.nodes.length;
+              var   s = '';
+
+	      if (data.status == "ERROR") {
+		  console.log('GNView: Error status ');
+                  errlbl.innerHTML = "Error getting data from database";
+		  s = '[]';
+		  gn_elements = JSON.parse(s);
+		  return(gn_elements);
+              }
+
+              nodes = ''; 	      
+              console.log('GNView: fetch complete len:'+nodelen);
+              for (i=0; i < nodelen; i++) {
+                  if ( i > 0) {
+		      nodes += ","+"\n";
+		  }
+		  
+		  nodes += '{';
+		  n = data.nodes[i];
+                  nodes += '"data": {';
+                  var idint = parseInt(n.id);
+		  
+                  ///console.log('GNView node-'+i+' id '+n.id);
+                  nodes+= '"id": "n'+n.id+'", ';
+		  nodes+= '"idInt": '+(idint)+',';
+		  nodes+= '"name": "'+n.name+'", ';
+		  nodes+= '"query": true ';
+                  nodes+= '},'+"\n";
+                  nodes+= '"group" : "nodes",'+"\n";
+                  nodes+= '"removed": false,'+"\n";
+                  nodes+= '"selected": false,'+"\n";
+                  nodes+= '"selectable": true,'+"\n";
+                  nodes+= '"grabbable": true,'+"\n";
+                  nodes+= '"locked": false'+"\n";
+                  nodes+= '}';
+              }
 	      
-            nodes = ''; 
-
-            console.log('GNView: fetch complete len:'+nodelen);
-            for (i=0; i < nodelen; i++) {
-                if ( i > 0) {
-		    nodes += ","+"\n";
-		}
-
-		nodes += '{';
-		n = data.nodes[i];
-                nodes += '"data": {';
-                var idint = parseInt(n.id);
-		
-                ///console.log('GNView node-'+i+' id '+n.id);
-                nodes+= '"id": "n'+n.id+'", ';
-		nodes+= '"idInt": '+(idint)+',';
-		nodes+= '"name": "'+n.name+'", ';
-		nodes+= '"query": true ';
-                nodes+= '},'+"\n";
-                nodes+= '"group" : "nodes",'+"\n";
-                nodes+= '"removed": false,'+"\n";
-                nodes+= '"selected": false,'+"\n";
-                nodes+= '"selectable": true,'+"\n";
-                nodes+= '"grabbable": true,'+"\n";
-                nodes+= '"locked": false'+"\n";
-                nodes+= '}';
-            }
-
-            ////// Get edges
-            var nodelen = data.edges.length;
-
-            edges = '';
-
-	     for (i=0; i < nodelen; i++) {
-
+              ////// Get edges
+              var nodelen = data.edges.length;
+	      
+              edges = '';
+	      
+	      for (i=0; i < nodelen; i++) {		  
                   if ( i > 0)
                       edges += ",";
-
+		  
                   edges += '{';
                   e = data.edges[i];
                   edges += '"data": {';
@@ -243,7 +251,7 @@
                   ///console.log('GNView node-'+i+' id '+n.id);
                   edges += '"id": "e'+e.id+'", ';
                   edges += '"idInt": '+(idint)+',';
-                   edges += '"relname": "'+(e.type)+'" ,';
+                  edges += '"relname": "'+(e.type)+'" ,';
                   edges += '"source": "n'+e.source+'" ,';
                   edges += '"target": "n'+e.target+'" ,';
                   edges += '"directed": true ';
