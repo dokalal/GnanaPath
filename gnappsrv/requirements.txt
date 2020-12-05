@@ -108,6 +108,8 @@ pyspark==2.4.5
 python-dateutil==2.8.1
 python-editor==1.0.4
 python-json-logger==0.1.11
+pytest==6.1.2
+pytest-mock==3.3.1
 pytz==2020.1
 PyWavelets==1.1.1
 PyYAML==5.3.1

@@ -2,9 +2,7 @@
 from tinydb import TinyDB,Query,where
 import os
 class ConnectModel:
-    # Initialize tinydb and query class variables
-    
-    #db = TinyDB('server_config.json')
+
     query = Query()
     
     def __init__(self,db_path):
