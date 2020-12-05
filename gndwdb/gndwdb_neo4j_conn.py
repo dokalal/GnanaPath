@@ -27,8 +27,7 @@ from gnutils.get_config_file import get_config_neo4j_conninfo_file;
 
 def       gndwdb_neo4j_conn_connect(uri, userName, passw, verbose):
         
-        # Database Credentials
-        
+        # Database Credentials        
         try:
             # Connect to the neo4j database server
             graphDB_Driver = GraphDatabase.driver(uri, auth=(userName, passw))
@@ -63,7 +62,11 @@ def             gndwdb_neo4j_conn_metarepo(verbose):
     ### Check db connection
     graph_conn  = gndwdb_neo4j_conn_connect(uri, userName, passw,verbose)
 
-    return graph_conn
+    if (verbose > 3):
+       if (graph_conn == ''):
+            print('gndwdb_neo4j_conn: connection failed '+graph_conn);
+    
+    return graph_conn;
 
 def           gndwdb_neo4j_conn_metarepo_close(graph_conn, verbose):
 

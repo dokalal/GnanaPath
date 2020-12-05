@@ -230,6 +230,14 @@ def                gndw_metarepo_metanode_add_api(node_name, node_attr_list, ver
     #graph_conn  = gn_neo4j_connect(uri, userName, passw,verbose)
     graph_conn = gndwdb_neo4j_conn_metarepo(verbose);
 
+    if (graph_conn == ''):
+         if (verbose > 3):
+            print('gndw_nodes_deleteall_api: Unable to connect to db server');
+         rjson = '{'+"\n";
+         rjson += '"status": "ERROR"'+"\n";
+         rjson += '"statusmsg": "Unable to connect meta db server"';
+         rjson += '}'+"\n";
+         return rjson;
     
     gndw_metarepo_metanode_add(graph_conn, node_name, node_attr_list, verbose);
     
@@ -237,8 +245,12 @@ def                gndw_metarepo_metanode_add_api(node_name, node_attr_list, ver
         print("gndw_metarepo_metanode_add: Meta node "+node_name+" and attributes are added to metarepo");
 
     gndwdb_neo4j_conn_metarepo_close(graph_conn, verbose);
-        
-    return ret;
+
+    rjson = '{'+"\n";
+    rjson += '"status": "SUCCESS"'+"\n";
+    rjson += '}'+"\n";
+
+    return rjson;
   
     
 #####################Datanode Repo
@@ -415,6 +427,15 @@ def              gndw_datarepo_datanode_add_api(node_name, node_attr_list, datan
     ### Check db connection
     #graph_conn  = gn_neo4j_connect(uri, userName, passw,verbose)
     graph_conn = gndwdb_neo4j_conn_datarepo(verbose);
+
+    if (graph_conn == ''):
+         if (verbose > 3):
+             print('gndw_nodes_deleteall_api: Unable to connect to db server');
+         rjson = '{'+"\n";
+         rjson += '"status": "ERROR"'+"\n";
+         rjson += '"statusmsg": "Unable to connect data db server"';
+         rjson += '}'+"\n";
+         return rjson; 
     
     gndw_datarepo_datanode_add(graph_conn, node_name, node_attr_list, datanode_name, datanode_attr_list, verbose)
     
@@ -422,10 +443,13 @@ def              gndw_datarepo_datanode_add_api(node_name, node_attr_list, datan
         print("gndw_datanode_add_api: Data Node is added")
 
     gndwdb_neo4j_conn_datarepo_close(graph_conn, verbose);
-    
-    return ret;
-    
 
+    rjson = '{'+"\n";
+    rjson += '"status": "SUCCESS"'+"\n";
+    rjson += '}'+"\n";
+    
+    return rjson;
+    
 
 def            gndw_nodes_deleteall_api(verbose):
 
@@ -435,6 +459,15 @@ def            gndw_nodes_deleteall_api(verbose):
 
     ### First delete in datarepo
     graph_conn = gndwdb_neo4j_conn_datarepo(verbose);
+
+    if (graph_conn == ''):
+         if (verbose > 3):
+             print('gndw_nodes_deleteall_api: Unable to connect to db server');
+         rjson = '{'+"\n";
+         rjson += '"status": "ERROR"'+"\n";
+         rjson += '"statusmsg": "Unable to connect data db server"';
+         rjson += '}'+"\n";
+         return rjson;
 
     if (verbose > 3):
         print('gndw_nodes_deleteall_api: DELETE datarepo nodes ');
@@ -448,14 +481,34 @@ def            gndw_nodes_deleteall_api(verbose):
     ### First delete in datarepo
     graph_conn = gndwdb_neo4j_conn_metarepo(verbose);
 
+    if (graph_conn == ''):
+         if (verbose > 3):
+             print('gndw_nodes_deleteall_api: Unable to connect to meta db server');
+         rjson = '{'+"\n";
+         rjson += '"status": "ERROR"'+"\n";
+         rjson += '"statusmsg": "Unable to connect meta db server"';
+         rjson += '}'+"\n";
+         return rjson;
+
+
+    
     if (verbose > 3):
         print('gndw_nodes_deleteall_api: DELETE metarepo nodes ');
-
+        
+        
     gndw_metarepo_metanode_deleteall(graph_conn, verbose);
 
     if (verbose > 3):
         print('gndw_nodes_deleteall_api: DELETEed datarepo nodes ');
     gndwdb_neo4j_conn_metarepo_close(graph_conn, verbose);
+
+    if (verbose > 3):
+         print('gndw_nodes_deleteall_api: Completed all nodes delete');
+    rjson = '{'+"\n";
+    rjson += '"status": "SUCCESS"'+"\n";
+    rjson += '"statusmsg": "All nodes deleted"';
+    rjson += '}'+"\n";
+    return rjson;
 
 
 def        clean_data_test_api():

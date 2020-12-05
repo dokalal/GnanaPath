@@ -434,6 +434,7 @@ class         gndwdbFetchApp:
             nj += "]" + "\n";
             
             retjson = '{ '+"\n";
+            retjson += ' "status": "SUCCESS" ,'+"\n";
             retjson += rjson;
             retjson += ", "+"\n";
             retjson += nj;
@@ -448,6 +449,17 @@ class         gndwdbFetchApp:
 def          gndwdb_metarepo_nodes_fetch_api(verbose):
 
      graph_connp = gndwdb_neo4j_conn_metarepo(verbose);
+
+     if (graph_connp == ''):
+         if (verbose > 3):
+             print('gndwdb_metarepo_edges_fetch_api: Unable to connect to db server');
+         rjson = '{'+"\n";
+         rjson += '"status": "ERROR",'+"\n";
+         rjson += '"statusmsg": "Unable to connect db server",'+"\n";
+         rjson += '"edges":[],'+"\n";
+         rjson += '"nodes":[] '+"\n";
+         rjson += '}'+"\n";
+         return rjson;
      
      fetchApp = gndwdbFetchApp(graph_connp);
      njson = fetchApp.find_nodes_return_rec(verbose);
@@ -464,6 +476,17 @@ def        gndwdb_metarepo_edges_fetch_api(verbose):
 
      graph_connp = gndwdb_neo4j_conn_metarepo(verbose);
 
+     if (graph_connp == ''):         
+         if (verbose > 3):
+             print('gndwdb_metarepo_edges_fetch_api: Unable to connect to db server');
+         rjson = '{'+"\n";
+         rjson += '"status": "ERROR", '+"\n";
+         rjson += '"statusmsg": "Unable to connect db server", ';
+         rjson += '"edges":[], '+"\n";
+         rjson += '"nodes":[] '+"\n";
+         rjson += '}'+"\n";
+         return rjson;
+     
      fetchApp = gndwdbFetchApp(graph_connp);
      rel_type="HAS_ATTR";
      rjson = fetchApp.find_edges_return_rec(rel_type, verbose);
@@ -479,6 +502,17 @@ def        gndwdb_metarepo_edges_fetch_api(verbose):
 def        gndwdb_datarepo_edges_fetch_api(verbose):
 
      graph_connp = gndwdb_neo4j_conn_datarepo(verbose);
+
+     if (graph_connp == ''):
+         if (verbose > 3):
+             print('gndwdb_metarepo_edges_fetch_api: Unable to connect to db server');
+         rjson = '{'+"\n";
+         rjson += '"status": "ERROR",'+"\n";
+         rjson += '"statusmsg": "Unable to connect db server",';
+         rjson += '"edges":[] ,'+"\n";
+         rjson += '"nodes":[] '+"\n";
+         rjson += '}'+"\n";
+         return rjson;
 
      fetchApp = gndwdbFetchApp(graph_connp);
      rel_type="IS";
