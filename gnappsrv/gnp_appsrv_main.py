@@ -119,7 +119,7 @@ def neo4j_conn_check_api():
 def connect_server():
   
     form = ConnectServerForm()
-    connect = ConnectModel()
+    connect = ConnectModel(path)
     if 'serverIP' in session and connect.search_res(session['serverIP']):
        srv_ip_encode = base64.urlsafe_b64encode(session['serverIP'].encode("utf-8"))
        srv_encode_str = str(srv_ip_encode, "utf-8") 
@@ -128,11 +128,12 @@ def connect_server():
        return redirect("/")
     if form.validate_on_submit():
         result = request.form.to_dict()
-        connect.insert_op(result)
+        req_dict=connect.req_fields_json(result)
+        connect.insert_op(req_dict)
         res=neo4j_conn_check_api();
         if res=="Error":
            flash(f'Error connecting to neo4j server {form.serverIP.data}', 'danger')
-           connect.delete_op(result)
+           connect.delete_op(req_dict)
            return render_template('connect.html', title='Connect Graph Server', form=form)
         else:    
            session['serverIP']=form.serverIP.data
@@ -146,7 +147,7 @@ def modify_conn_details(serverIP):
   decoded_bytes = base64.b64decode(serverIP)
   servIP = str(decoded_bytes, "utf-8")
   form = ConnectServerForm()
-  connect=ConnectModel()
+  connect=ConnectModel(path)
   serv_details=connect.search_res(servIP)
   if not serv_details:
      flash(f"No connection details exist to modify",'warning')
@@ -161,12 +162,13 @@ def modify_conn_details(serverIP):
   if request.method=='POST':
      if form.validate_on_submit():
         result = request.form.to_dict()
-        connect.update_op(servIP,result)
+        req_dict=connect.req_fields_json(result)
+        connect.update_op(servIP,req_dict)
         res=neo4j_conn_check_api()
         if res=="Error":
            flash(f'Error connecting to neo4j server {form.serverIP.data}', 'danger')
            form.connect.label.text='Update'
-           connect.delete_op(result)
+           connect.delete_op(req_dict)
            session.pop('serverIP', None)
            return redirect('/')  
         flash('Connection details modified successfully','success')
@@ -184,8 +186,6 @@ def modify_conn_details(serverIP):
 def logout():
     logout_user()
     session.pop('serverIP', None)
-    if os.path.exists('server_config.json'):
-        os.remove('server_config.json')
     return redirect(url_for('user_login'))
 
 @app.route("/login", methods=['GET','POST'])
