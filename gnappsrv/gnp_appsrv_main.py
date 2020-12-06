@@ -81,13 +81,19 @@ def load_user(user_id):
 
 @app.route('/', methods=['GET'])
 def gn_home():
-    return render_template('base_layout.html') 
+    if check_server_session()or request.args.get('disp_srch'):
+        _srch=True
+    else:
+        _srch=False
+       
+    return render_template('base_layout.html',disp_srch=_srch) 
 
 @app.route('/upload', methods=['GET','POST'])
 @login_required
 def upload_file():
+    _srch=True if check_server_session() else False
     if request.method == 'GET':
-       return render_template('upload.html') 
+       return render_template('upload.html',disp_srch=_srch) 
     if request.method == 'POST':
 
         if 'fd' not in request.files:
@@ -106,7 +112,7 @@ def upload_file():
             gndwdbDataUpload(app.config['UPLOAD_FOLDER'], filename)
 
         flash(f'File {filename} successfully uploaded','success')
-        return redirect('/')
+        return redirect(url_for('gn_home',disp_srch=_srch))
 
 def neo4j_conn_check_api():
     verbose = 0;
@@ -114,18 +120,23 @@ def neo4j_conn_check_api():
     res=gndwdb_neo4j_conn_check_api(cfg_file, verbose);    
     return res
 
+def check_server_session():
+    return True if 'serverIP' in session else False
+
 @app.route("/connect", methods=['GET', 'POST'])
 @login_required
 def connect_server():
   
     form = ConnectServerForm()
     connect = ConnectModel(path)
+    
     if 'serverIP' in session and connect.search_res(session['serverIP']):
+       
        srv_ip_encode = base64.urlsafe_b64encode(session['serverIP'].encode("utf-8"))
        srv_encode_str = str(srv_ip_encode, "utf-8") 
        flash(Markup('Already connected to neo4j server,Click <a href=/modify/{}\
              class="alert-link"> here</a> to modify'.format(srv_encode_str)),'warning')
-       return redirect("/")
+       return redirect(url_for('gn_home',disp_srch=True))
     if form.validate_on_submit():
         result = request.form.to_dict()
         req_dict=connect.req_fields_json(result)
@@ -134,12 +145,12 @@ def connect_server():
         if res=="Error":
            flash(f'Error connecting to neo4j server {form.serverIP.data}', 'danger')
            connect.delete_op(req_dict)
-           return render_template('connect.html', title='Connect Graph Server', form=form)
+           return render_template('connect.html', title='Connect Graph Server', form=form,disp_srch=False)
         else:    
            session['serverIP']=form.serverIP.data
            flash(f'Connected to server {form.serverIP.data}!', 'success')
-           return redirect('/')
-    return render_template('connect.html', title='Connect Graph Server', form=form)
+           return redirect(url_for('gn_home',disp_srch=True)) 
+    return render_template('connect.html', title='Connect Graph Server', form=form,disp_srch=False)
 
 @app.route("/modify/<serverIP>",methods=['GET','POST'])
 @login_required
@@ -152,13 +163,13 @@ def modify_conn_details(serverIP):
   if not serv_details:
      flash(f"No connection details exist to modify",'warning')
      session.pop('serverIP',None)
-     return render_template('connect.html', title='Connect Graph Server', form=form)      
+     return render_template('connect.html', title='Connect Graph Server', form=form,disp_srch=False)      
   if request.method=='GET':
      form.serverIP.data = serv_details[0]['serverIP']
      form.username.data = serv_details[0]['username']
      form.password.data = serv_details[0]['password']
      form.connect.label.text='Update'
-     return render_template("connect.html", title='Modify connection details',form=form)
+     return render_template("connect.html", title='Modify connection details',form=form,disp_srch=True)
   if request.method=='POST':
      if form.validate_on_submit():
         result = request.form.to_dict()
@@ -170,14 +181,14 @@ def modify_conn_details(serverIP):
            form.connect.label.text='Update'
            connect.delete_op(req_dict)
            session.pop('serverIP', None)
-           return redirect('/')  
+           return redirect(url_for('gn_home',disp_srch=False))  
         flash('Connection details modified successfully','success')
-        session['serverIP']=form.serverIP.data
-        return redirect('/')
+        
+        return redirect(url_for('gn_home',disp_srch=True))
      else:
         flash('Error in  Server Connection parameters','danger')
         form.connect.label.text='Update'
-        return render_template('connect.html', title='Modify connection details', form=form)
+        return render_template('connect.html', title='Modify connection details', form=form,disp_srch=False)
 
  
 
