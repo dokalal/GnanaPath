@@ -1,5 +1,5 @@
 body {
-  font: 12pt Open Sans;
+  font: 10pt Open Sans;
   position: absolute;
   left: 0;
   top: 0;
@@ -7,21 +7,21 @@ body {
   bottom: 0;
 }
 
-.main {
+.cymain {
   position: absolute;
   left: 0;
-  top: 0;
+  top: 150;
   right: 20em;
   bottom: 0;
   z-index: 1;
 }
 
-.tools {
+.cytools {
   box-sizing: border-box;
   padding: 0.25em 0.5em;
   position: absolute;
   right: 0;
-  top: 0;
+  top: 75;
   bottom: 0;
   width: 16em;
   background: #fff;
