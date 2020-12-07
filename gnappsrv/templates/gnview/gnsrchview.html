@@ -1,14 +1,19 @@
-<!DOCTYPE html>
-
 <html>
-
-<head>
-  <link rel="stylesheet" href="{{ url_for('static', filename='cola/css/normalize.css')}}" />
+ <head> 
+     
+ </head>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
+ 
+   <link rel="stylesheet" href="{{ url_for('static', filename='cola/css/normalize.css')}}" />
   <link rel="stylesheet" href="{{ url_for('static', filename='cola/css/skeleton.css' )}}" />
   <link rel="stylesheet" href="{{ url_for('static', filename='cola/css/font-awesome.css') }}" />
   <link rel="stylesheet" href="{{ url_for('static', filename='cola/css/open-sans.css') }}" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='cola/css/index.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='cola/css/index.css') }}" /> 
   <link rel="stylesheet" href="{{ url_for('static', filename='cola/css/tooltipster.bundle.min.css') }} " />
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='cola/css/cytoscape.js-panzoom.css') }} " />
 
   <script src="{{ url_for('static', filename='cola/js/cytoscape.min.js') }}"></script>
   <script src="{{ url_for('static', filename='cola/js/cola.js') }}"></script>
@@ -16,33 +21,124 @@
   <script src="{{ url_for('static', filename='cola/js/jquery-3.1.1.min.js') }}"></script>
   <script src="{{ url_for('static', filename='cola/js/tooltipster.bundle.min.js') }}"></script>
   <script src="{{ url_for('static', filename='cola/js/srchview.js') }}"></script>
+  <script src="{{ url_for('static', filename='cola/js/cytoscape-panzoom.js') }}"></script>
 
-  <title>GnanaInsight Search View Panel</title>
-</head>
+  
+  <title>GnanaInsight DataView Panel</title>
+
+<style>
+.slidecontainer {
+  width: 100%;
+}
+
+.slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 25px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  background: #4CAF50;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  background: #4CAF50;
+  cursor: pointer;
+}
+</style>
+
 
 <body>
-  <h4>Gnana Search View</h4>
+  <!--  Meta View Header -->
+  <header class="site-header">
+      <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
+        <div class="container">
+          <a class="navbar-brand mr-4" href="/">Gnanapath</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarToggle">
+            <div class="navbar-nav mr-auto">
+              <a class="nav-item nav-link" href="{{ url_for('gn_home') }}">Home</a>
+            </div>
 
-  <div id="cy" class="main">
+   <!-- Navbar Right Side -->
+            <div class="navbar-nav">
+              {% if current_user.is_authenticated %}
+
+                <a class="nav-item nav-link" href="{{ url_for('connect_server') }}">Connect</a>
+                <a class="nav-item nav-link" href="{{ url_for('upload_file') }}">Upload</a>
+                {% if disp_srch %}
+                <a class="nav-item nav-link" href="{{ url_for('gnview_cola_api') }}">Searchview</a>
+                <a class="nav-item nav-link" href="{{ url_for('gnmetaview_cola_api') }}">Metaview</a>
+                {% endif %}
+                <a class="nav-item nav-link" href="{{ url_for('logout') }}">Logout</a>
+
+                {% else %}
+                <a class="nav-item nav-link" href="{{ url_for('user_login') }}">Login</a>
+
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+	    
+ <div  class="content-section">
+   <hr />
+  <h5>Gnana Search</h5>
+
+  <div id="cy" class="cymain">
   </div>
 
-  <div class="tools">
+  <div class="cytools">
 
-    <h4>Gnana Search</h4>
-    <p>Please enter SQL search string Ex: SELECT * from customer  </p>
+    <h5>Search Panel</h5>
+    <p>Please enter SQL search string ex: SELECT * from customer </p>
     <input id="srchid" type="text" />
-    <button id="srchbtn">SQL Search</button>
+    <button id="srchbtn">Search</button>
     <label id="statuslbl"></label>
     <label id="errorlbl" style="color:red"></label>
     <hr>
-    <h4>Layout</h4>
+    
+   <!-- <h6>Zoom View</h6>
 
-       <label for="redo-layout" style="padding-right: 5px;" class="tooltip u-pull-left" title="Redo layout">Redo layout</label>
-       <i id="redo-layout" class="fa fa-refresh action-icon tooltip" title="Redo layout"></i>
- 
-      <p> You may have to refresh several times. Click on the <i>Redo</i> button</p>
+      <div class="slidecontainer">
+       <input type="range" min="1" max="100" value="50" id="gnzoomid" />  
+        <!-- <p>Node Space</p>
+         <input type="range" min="1" max="100" value="50" class="slider" id="gnnodespaceid">
+      </div>
+    -->  
 
-     <hr> 
+       <div>
+          <!--
+          <label for="redo-layout" style="padding-right: 5px;" class="tooltip u-pull-left" title="Redo layout">Redo layout</label>
+          <i id="redo-layout" class="fa fa-refresh action-icon tooltip" title="Redo layout"></i>
+  
+          <!--<h6> You may have to refresh several times. Click on the <i>Redo</i> button</p> -->
+          <button id="redo-layout" class="fa fa-refresh action-icon tooltop" title="Redo Layout"> Redo Layout</button>
+	  
+      </div>
+       <hr>
+       
+  <!--  Temparorily Disable Graph Alg      
     <h4>Graph Algorithms</h4>
 
 
@@ -56,8 +152,11 @@
         <option value="dfs">DFS</option>
       </select>
     <i id="redo-algorithm" class="fa fa-refresh action-icon tooltip" title="Redo algorithm visualization"></i>
+ -->
+
+
   </div>
 
+</div>
 </body>
-
 </html>
