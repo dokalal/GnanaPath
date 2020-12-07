@@ -57,16 +57,17 @@
         name: 'cola',
         padding: layoutPadding,
         nodeSpacing: 12,
-        edgeLengthVal: 45,
+        edgeLengthVal: 25,
         animate: true,
         randomize: true,
         maxSimulationTime: maxLayoutDuration,
         boundingBox: { // to give cola more space to resolve initial overlaps
           x1: 0,
           y1: 0,
-          x2: 1000,
-          y2: 1000
+          x2: 8000,
+          y2: 2000
         },
+	  
         edgeLength: function( e ){
           let w = e.data('weight');
 
@@ -74,7 +75,7 @@
             w = 0.5;
           }
 
-          return 45 / w;
+          return 25 / w;
         }
       }
     };
@@ -167,6 +168,7 @@
     ///$algorithm.addEventListener('change', applyAlgorithmFromSelect);
     ///$('#redo-algorithm').addEventListener('click', applyAlgorithmFromSelect);
 
+      
     //////////////////////////////////
     $('#srchbtn').addEventListener('click', applyDatasetChange);
       
