@@ -12,8 +12,6 @@
   {
     "selector": "node",
      "style": {
-        "width": "mapData(score, 0, 0.21903959561920813, 20, 60)",
-        "height": "mapData(score, 0, 0.21903959561920813, 20, 60)",
         "label": "data(name)",
         "font-size": "15px",
         "text-valign": "center",
@@ -45,13 +43,13 @@
   },
   {
     "selector": "edge",
-    "style": {
-      "curve-style": "haystack",
-      "haystack-radius": "0.5",
-      "opacity": "0.3",
-      "line-color": "#bbb",
-      "width": "1",
-      "overlay-padding": "3px"
+      "style": {
+	  "curve-style": "haystack",
+	  "haystack-radius": "0.5",
+	  "opacity": "0.3",
+	  "line-color": "#0bb",
+	  "width": "2",
+	  "overlay-padding": "1px"
     }
   },
   {
