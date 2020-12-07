@@ -290,70 +290,28 @@ class         gndwdbFetchApp:
          rdict['jsonstr'] = rjson;
          
          return (rdict);
-
-     
-    def     convert_rel_rec_dict_old(self, relnode, verbose):
-
-         if (verbose > 4):
-             print(relnode);
-             
-         rdict = {}; 
-             
-         ###relnode = record["r"];
-         rdict['type'] = relnode.type;
-         rdict['id']  = relnode.id;
-
-         if (verbose > 3):
-           print("Relationship type: "+str(rdict['type']));
-           
-         nodes = relnode.nodes;
-
-         if (verbose > 3):
-            print(" Relationship Nodes \n");
-            print(nodes);
-
-         rdict['snodeid'] = nodes[0];
-         rdict['tnodeid'] = nodes[1];
-         
-         ###print("Source Node id:"+str(snode.id));
-         ##print("Target Node id:"+str(tnode.id));
-         rjson += '   "directed": true, '+"\n";
-         rdict['directed'] = true;
-         
-         rk = 0;
-
-         for rkey in relnode.keys():
-              rkeyval = relnode.get(rkey);
-
-              #if (verbose > 4):
-              #   print(" Relationship key key: "+str(rkey));
-              #   print(" Relationship val: "+str(rkeyval));
-
-              rdict[rkey] = str(rkeyval);
-              
-              #rjson += '   "'+str(rkey)+'": "'+str(rkeyval)+'"';
-              rk += 1;
-
-         #rjson += "\n";
-         #rjson += '}';
-         return (rdict);
-
-     
-
+   
             
-    def            find_edges_return_rec(self, rel_type,verbose):
+    def            find_edges_nodes_return_rec(self, nodename, rel_type, nlimit, verbose):
             
         with   self.driver.session() as session:
             #rjson = " { "+"\n";
             rel_list= {};
             nodelist = {};
             nnum = 0;
+            nedges = 0;
+            nnodes = 0;
             
-            query = (
-                 "MATCH ()-[r:"+rel_type+"]->() "
-                ###"WHERE p.name = $person_name "
-                " RETURN r LIMIT 10"
-            )
+            if (nodename):
+                 query = (
+                       "MATCH (n {name:\""+nodename+"\"})-[r:"+rel_type+"]->(t) "
+                       " RETURN n,r,t LIMIT "+str(nlimit)+" "
+                        );
+            else :
+                 query = (
+                      "MATCH ()-[r:"+rel_type+"]->() "
+                      " RETURN r LIMIT "+str(nlimit)+" "
+                 )
             
             result = session.run(query);
             rnum = 0;
@@ -372,13 +330,13 @@ class         gndwdbFetchApp:
                 rdict = self.convert_rel_rec_dict(relnode, verbose);
                 relid = rdict['id'];
                 rel_list[relid] = rdict;
+                nedges += 1;
                 
                 snode = rdict['source'];
                 tnode = rdict['target'];
                 sid = snode["id"];
                 tid = tnode["id"];
 
-                
                 if sid in nodelist.keys():
                     if (verbose > 4):
                         print(" GndwDBFetchOp: source node is present "+str(sid));
@@ -392,7 +350,8 @@ class         gndwdbFetchApp:
                         print('GndwDBFetchApp: new snode id:'+str(sid));
                         print(sdict);
                     nnum += 1;
-
+                    nnodes += 1;
+                    
                 if tid in nodelist.keys():
                     if (verbose > 4):
                         print(" GndwDBFetchOp: target node is present "+str(tid));
@@ -405,15 +364,14 @@ class         gndwdbFetchApp:
                         print('GndwDBFetchApp: new tnode id '+str(tid));
                         print(tdict);
                     nnum += 1;
-
+                    nnodes += 1;
+                    
                 rj = rdict['jsonstr'];
-                ##rj = json.dumps(rdict, indent=4);
                 rjson += rj;
                 rnum += 1;
 
             rjson += "\n";
             rjson += "]" ;
-           # rjson += '}'+"\n";
            
             if (verbose > 3):
                 print('gndwdbFetchOps: Fetch edges #edges: '+str(rnum));
@@ -435,6 +393,8 @@ class         gndwdbFetchApp:
             
             retjson = '{ '+"\n";
             retjson += ' "status": "SUCCESS" ,'+"\n";
+            retjson += '  "nedges": '+str(nedges)+' ,'+"\n";
+            retjson += '  "nnodes": '+str(nnodes)+' ,'+"\n";
             retjson += rjson;
             retjson += ", "+"\n";
             retjson += nj;
@@ -472,7 +432,7 @@ def          gndwdb_metarepo_nodes_fetch_api(verbose):
      return njson;
 
  
-def        gndwdb_metarepo_edges_fetch_api(verbose):
+def        gndwdb_metarepo_edges_fetch_api(srchqry, verbose):
 
      graph_connp = gndwdb_neo4j_conn_metarepo(verbose);
 
@@ -489,7 +449,14 @@ def        gndwdb_metarepo_edges_fetch_api(verbose):
      
      fetchApp = gndwdbFetchApp(graph_connp);
      rel_type="HAS_ATTR";
-     rjson = fetchApp.find_edges_return_rec(rel_type, verbose);
+
+     if (srchqry): 
+        nodename = srchqry;
+     else:
+         nodename = '';
+         
+     nlimit = 100;
+     rjson = fetchApp.find_edges_nodes_return_rec(nodename, rel_type, nlimit, verbose);
      #reljson = fetchApp.find_rels_return_rec(verbose);
      #rjson = '{ '."\n";
      #rjson += njson;
@@ -516,7 +483,9 @@ def        gndwdb_datarepo_edges_fetch_api(verbose):
 
      fetchApp = gndwdbFetchApp(graph_connp);
      rel_type="IS";
-     rjson = fetchApp.find_edges_return_rec(rel_type, verbose);
+     nodename = '';
+     nlimit = 3000;
+     rjson = fetchApp.find_edges_nodes_return_rec(nodename, rel_type, nlimit, verbose);
      #reljson = fetchApp.find_rels_return_rec(verbose);
      #rjson = '{ '."\n";
      #rjson += njson;
