@@ -222,14 +222,14 @@ def user_login():
 @app.route('/gnsrchview', methods=['GET'])
 @login_required
 def  gnview_cola_api():
-    print('GnApp: gnview cola is initiated');
-    return render_template('gnview/gnsrchview.html');
+    _srch=True if check_server_session() else False
+    print('GnApp: gnview cola is initiated')
+    return render_template('gnview/gnsrchview.html',disp_srch=_srch);
 
 
 @app.route('/api/v1/search',methods=['GET'])
 @login_required
 def   gnsrch_api():
-
      verbose = 0;
      srchqry = '';
      print('GNPAppserver: search api ');     
@@ -287,8 +287,9 @@ def   gnsrch_api():
 @app.route('/gnmetaview', methods=['GET'])
 @login_required
 def  gnmetaview_cola_api():
+    _srch=True if check_server_session() else False
     print('GnApp: gnview cola is initiated');
-    return render_template('gnview/gnmetaview.html');
+    return render_template('gnview/gnmetaview.html',disp_srch=_srch);
 
 
 
