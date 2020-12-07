@@ -455,7 +455,7 @@ def        gndwdb_metarepo_edges_fetch_api(srchqry, verbose):
      else:
          nodename = '';
          
-     nlimit = 100;
+     nlimit = 500;
      rjson = fetchApp.find_edges_nodes_return_rec(nodename, rel_type, nlimit, verbose);
      #reljson = fetchApp.find_rels_return_rec(verbose);
      #rjson = '{ '."\n";
@@ -484,7 +484,7 @@ def        gndwdb_datarepo_edges_fetch_api(verbose):
      fetchApp = gndwdbFetchApp(graph_connp);
      rel_type="IS";
      nodename = '';
-     nlimit = 3000;
+     nlimit = 2000;
      rjson = fetchApp.find_edges_nodes_return_rec(nodename, rel_type, nlimit, verbose);
      #reljson = fetchApp.find_rels_return_rec(verbose);
      #rjson = '{ '."\n";
