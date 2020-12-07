@@ -29,7 +29,7 @@ sys.path.append(listDir+'/gndatadis');
 
 from gnsearch.gnsrch_sql_srchops  import gnsrch_sqlqry_api;
 from gndwdb.gndwdb_neo4j_fetchops import gndwdb_metarepo_nodes_fetch_api, gndwdb_metarepo_edges_fetch_api;
-from gndwdb.gndwdb_neo4j_conn import  gndwdb_neo4j_conn_check_api;
+from gndwdb.gndwdb_neo4j_conn import  gndwdb_neo4j_conn_check_api,gndwdb_neo4j_parse_config
 from gnutils.get_config_file import get_config_neo4j_conninfo_file;
 from gndd_csv_load import gndwdbDataUpload; #to upload Files.
 
@@ -116,9 +116,11 @@ def upload_file():
 
 def neo4j_conn_check_api():
     verbose = 0;
-    cfg_file = get_config_neo4j_conninfo_file();
-    res=gndwdb_neo4j_conn_check_api(cfg_file, verbose);    
-    return res
+    cfg_file = get_config_neo4j_conninfo_file()
+    if not cfg_file=="Error":
+        res=gndwdb_neo4j_conn_check_api(cfg_file, verbose);    
+        return res
+    return "NoFile"
 
 def check_server_session():
     return True if 'serverIP' in session else False
@@ -134,8 +136,8 @@ def connect_server():
        
        srv_ip_encode = base64.urlsafe_b64encode(session['serverIP'].encode("utf-8"))
        srv_encode_str = str(srv_ip_encode, "utf-8") 
-       flash(Markup('Already connected to neo4j server,Click <a href=/modify/{}\
-             class="alert-link"> here</a> to modify'.format(srv_encode_str)),'warning')
+       flash(Markup('Connected to neo4j server {},Click <a href=/modify/{}\
+             class="alert-link"> here</a> to modify'.format(session['serverIP'],srv_encode_str)),'info')
        return redirect(url_for('gn_home',disp_srch=True))
     if form.validate_on_submit():
         result = request.form.to_dict()
@@ -215,8 +217,20 @@ def user_login():
         return render_template("login.html", form=form)
 
     login_user(user)
-    flash("Please input the server config details",'success')
-    return redirect(url_for('connect_server'))
+    if neo4j_conn_check_api()=="NoFile":
+       _srch=False
+       flash("Please input the server config details",'success')
+       return redirect(url_for('connect_server',disp_srch=_srch))
+
+    elif neo4j_conn_check_api()=="Error":
+       _srch=False
+       flash("Error connecting to neo4j server",'danger')
+       return redirect(url_for('connect_server',disp_srch=_srch))
+    _srch=True
+    cfg_file = get_config_neo4j_conninfo_file();
+    conn_param=gndwdb_neo4j_parse_config(1)
+    session['serverIP']=conn_param['serverIP']
+    return redirect(url_for('connect_server',disp_srch=_srch))
 
 
 @app.route('/gnsrchview', methods=['GET'])
