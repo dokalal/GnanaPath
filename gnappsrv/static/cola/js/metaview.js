@@ -64,8 +64,8 @@
         boundingBox: { // to give cola more space to resolve initial overlaps
           x1: 0,
           y1: 0,
-          x2: 10000,
-          y2: 10000
+          x2: 1000,
+          y2: 1000
         },
         edgeLength: function( e ){
           let w = e.data('weight');
@@ -153,14 +153,19 @@
       container: $('#cy')
     });
 
+    //// Add panzoom   
+    cy.panzoom({
+       //// zoom options	  
+      });
+
       tryPromise( applyDatasetFromSelect ).then( applyStylesheetFromSelect ).then( applyLayoutFromSelect );
 
       let applyDatasetChange = () => tryPromise(applyDatasetFromSelect).then(applyStylesheetFromSelect).then(applyLayoutFromSelect);
       
     $('#redo-layout').addEventListener('click', applyLayoutFromSelect);
-
-    $algorithm.addEventListener('change', applyAlgorithmFromSelect);
-    $('#redo-algorithm').addEventListener('click', applyAlgorithmFromSelect);
+////Disable algorithm
+    ///$algorithm.addEventListener('change', applyAlgorithmFromSelect);
+    ///$('#redo-algorithm').addEventListener('click', applyAlgorithmFromSelect);
 
     //////////////////////////////////
     $('#srchbtn').addEventListener('click', applyDatasetChange);
@@ -301,9 +306,9 @@
     }
       ///////////////Zooming
       var zx, zy;
-
-  $('#gnnodespaceid').addEventListener('change', applyNodeSpaceChange);
-  $('#gnzoomid').addEventListener('change', applyZoomLevelChange);
+/////// Disable nodespace for timebeing
+ //// $('#gnnodespaceid').addEventListener('change', applyNodeSpaceChange);
+ /// $('#gnzoomid').addEventListener('change', applyZoomLevelChange);
 
   function calculateZoomCenterPoint(){
             var pan = cy.pan();
