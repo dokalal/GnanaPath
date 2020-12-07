@@ -48,8 +48,9 @@
 	  "haystack-radius": "0.5",
 	  "opacity": "0.3",
 	  "line-color": "#0bb",
-	  "width": "2",
-	  "overlay-padding": "1px"
+	  "width": "4",
+	  "overlay-padding": "1px",
+	  "target-arrow-shape": "triangle"
     }
   },
   {
