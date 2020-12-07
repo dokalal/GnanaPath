@@ -20,7 +20,9 @@
       if( typeof stylesheet === typeof '' ){
         cy.style().fromString( stylesheet ).update();
       } else {
-        cy.style().fromJson( stylesheet ).update();
+          cy.style().fromJson( stylesheet ).update();
+	  cy.minZoom(0.00);
+	  cy.maxZoom(10);
       }
     };
     let applyStylesheetFromSelect = () => Promise.resolve( $stylesheet ).then( getStylesheet ).then( applyStylesheet );
@@ -33,7 +35,7 @@
       
     let applyDataset = dataset => {
       // so new eles are offscreen
-      cy.zoom(0.001);
+      cy.zoom(1);
       cy.pan({ x: -9999999, y: -9999999 });
       console.log('View: new Dataset is applied');
       // replace eles
@@ -62,8 +64,8 @@
         boundingBox: { // to give cola more space to resolve initial overlaps
           x1: 0,
           y1: 0,
-          x2: 10000,
-          y2: 10000
+          x2: 1000,
+          y2: 1000
         },
         edgeLength: function( e ){
           let w = e.data('weight');
@@ -151,14 +153,19 @@
       container: $('#cy')
     });
 
+    //// Add panzoom   
+    cy.panzoom({
+       //// zoom options	  
+      });
+
       tryPromise( applyDatasetFromSelect ).then( applyStylesheetFromSelect ).then( applyLayoutFromSelect );
 
       let applyDatasetChange = () => tryPromise(applyDatasetFromSelect).then(applyStylesheetFromSelect).then(applyLayoutFromSelect);
       
     $('#redo-layout').addEventListener('click', applyLayoutFromSelect);
-
-    $algorithm.addEventListener('change', applyAlgorithmFromSelect);
-    $('#redo-algorithm').addEventListener('click', applyAlgorithmFromSelect);
+////Disable algorithm
+    ///$algorithm.addEventListener('change', applyAlgorithmFromSelect);
+    ///$('#redo-algorithm').addEventListener('click', applyAlgorithmFromSelect);
 
     //////////////////////////////////
     $('#srchbtn').addEventListener('click', applyDatasetChange);
@@ -169,131 +176,213 @@
 	///var srv = 'http://45.79.206.248:5050';	
 	///var url = '/static/cola/js/product.json';
 	var srchstr = document.getElementById('srchid').value;
+	var stlbl = document.getElementById('statuslbl');
+        var errlbl = document.getElementById('errorlbl');
+	
+	console.log('GNFetchData View: sql txt srch '+srchstr);
+	var nodes_url = "/api/v1/metanodes?srchqry='"+srchstr+"'";
+	var dataedges_url = "/api/v1/search?srchqry='"+srchstr+"'";
 	var nodes;
 	var edges;
-        var errlbl = document.getElementById('errorlbl');
-	var statuslbl = document.getElementById('statuslbl');
-	
-	console.log('GNView: sql txt srch '+srchstr);
-	var url = "/api/v1/search?srchqry='"+srchstr+"'";
-	
+	var sele = '';
 	var myHeaders = new Headers({
 	    'Content-Type': 'text/plain',
 	    'Access-Control-Allow-Origin' : '*'
 	});
 	
-	console.log('GNView: Fetch data1 ');
-	return fetch(url,
-		     {
-			 method: 'GET',
-			 headers: myHeaders
-		     }
-		    )
-          .then (response => response.json())
-          .then (data => {
+	///console.log('GNView: Fetch data1 ');
+	try {
+   	   return fetch(dataedges_url, { method: 'GET', headers: myHeaders })
+	////	    fetch(edges_url, { method: 'GET',  headers: myHeaders })
+	
+            .then (response => response.json())
+            .then (data => {
+             //console.log('GNView: Fetch complete ');
+		//console.log('GNView: data:'+JSON.stringify(data, null,3));
+		var status = data.status;
+		var statusmsg = data.statusmsg;
+		var nodelen = data.nodes.length;
 
-	      if (data) {  
-		  console.log('GNView: Fetch complete ');
-		  console.log('GNView: data:'+JSON.stringify(data, null,3));
-	      }
-	      
-              var nodelen = data.nodes.length;
-              var   s = '';
 
-	      if (data.status == "ERROR") {
-		  console.log('GNView: Error status ');
-                  errlbl.innerHTML = "Error getting data from database";
-		  s = '[]';
-		  gn_elements = JSON.parse(s);
-		  return(gn_elements);
-              }
+		if (status == "ERROR") {
+                    console.log('GNView: Error status ');
+                    errlbl.innerHTML = "Error getting data from database";
+		    s = '[]';
+		    gn_elements = JSON.parse(s);
+		    return(gn_elements);
+		}
+		
+		nodes = '';	      
+		///s = '{'+"\n";
+		//nodes += ' '+"\n";
+		console.log('GNView: fetch complete len:'+nodelen);
+		for (i=0; i < nodelen; i++) {
+		    
+                    if ( i > 0)
+			nodes += ","+"\n";
+		    
+                    nodes += '{';
+		    n = data.nodes[i];
+                    nodes += '"data": {';
+                    var idint = parseInt(n.id);
+                    ///console.log('GNView node-'+i+' id '+n.id);
+                    nodes+= '"id": "n'+n.id+'", ';
+		    nodes+= '"idInt": '+(idint)+',';
+		    nodes+= '"name": "'+n.name+'", ';
+		    nodes+= '"query": true ';
+                    nodes+= '},'+"\n";
+		    nodes+= '"group" : "nodes",';
+		    nodes+= '"removed": false,';
+		    nodes+= '"selected": false,';
+		    nodes+= '"selectable": true,';
+		    nodes+= '"grabbable": true,';
+		    nodes+= '"locked": false';
+		    nodes+= '}';
+		}
+		
+		///nodes += ']'+"\n";
+		////////// Get edges 
+		//console.log('GNView: Fetch Edges complete ');
+		//console.log('GNView: data:'+JSON.stringify(data, null,3));
+     
+		
+		var nodelen;
+		edges = '';
+		
+		if (data.edges)
+		    nodelen = data.edges.length;
+		else
+		    nodelen = 0;
+		
+		///s = '{'+"\n";
+		///edges += '['+"\n";
+		//console.log('GNView: fetch Edges complete len:'+nodelen);
+		for (i=0; i < nodelen; i++) {	  
+		    if ( i > 0)
+			edges += ","+"\n";
+		    
+		    edges += '{';
+		    e = data.edges[i];
+	            edges += '"data": {';
+		    var idint = parseInt(e.id);
+		    ///console.log('GNView node-'+i+' id '+n.id);
+		    edges += '"id": "e'+e.id+'", ';
+		    edges += '"idInt": '+(idint)+',';
+		    edges += '"relname": "'+(e.type)+'" ,';
+		    edges += '"source": "n'+e.source+'" ,';
+		    edges += '"target": "n'+e.target+'" ,';
+		    edges += '"directed": true ';
+		    //edges += '"name": "'+n.name+'", ';
+		    //edges += '"query": true ';
+		    edges += '},'+"\n";
+		    
+                    edges += '"position": {},';
+		    edges += '"group": "edges",';
+		    edges += '"removed": false,';
+		    edges += '"selected": false,';
+		    edges += '"selectable": true, ';
+		    edges += '"locked": false, ';
+		    edges += '"grabbable": true, ';
+		    edges += '"directed": true';
+		    edges += '}';		   
+		}
+		
+		///edges += ']'+"\n";
+		s = '['+"\n";
+		///////s += '{'+"\n";
+		s += nodes;
+		if (edges) 
+		    s += ','+"\n";
+		s += edges;		
+		s += '\n';
+		s += ']'+"\n";
 
-              nodes = ''; 	      
-              console.log('GNView: fetch complete len:'+nodelen);
-              for (i=0; i < nodelen; i++) {
-                  if ( i > 0) {
-		      nodes += ","+"\n";
-		  }
-		  
-		  nodes += '{';
-		  n = data.nodes[i];
-                  nodes += '"data": {';
-                  var idint = parseInt(n.id);
-		  
-                  ///console.log('GNView node-'+i+' id '+n.id);
-                  nodes+= '"id": "n'+n.id+'", ';
-		  nodes+= '"idInt": '+(idint)+',';
-		  nodes+= '"name": "'+n.name+'", ';
-		  nodes+= '"query": true ';
-                  nodes+= '},'+"\n";
-                  nodes+= '"group" : "nodes",'+"\n";
-                  nodes+= '"removed": false,'+"\n";
-                  nodes+= '"selected": false,'+"\n";
-                  nodes+= '"selectable": true,'+"\n";
-                  nodes+= '"grabbable": true,'+"\n";
-                  nodes+= '"locked": false'+"\n";
-                  nodes+= '}';
-              }
-	      
-              ////// Get edges
-              var nodelen = data.edges.length;
-	      
-              edges = '';
-	      
-	      for (i=0; i < nodelen; i++) {		  
-                  if ( i > 0)
-                      edges += ",";
-		  
-                  edges += '{';
-                  e = data.edges[i];
-                  edges += '"data": {';
-                  var idint = parseInt(e.id);
-                  ///console.log('GNView node-'+i+' id '+n.id);
-                  edges += '"id": "e'+e.id+'", ';
-                  edges += '"idInt": '+(idint)+',';
-                  edges += '"relname": "'+(e.type)+'" ,';
-                  edges += '"source": "n'+e.source+'" ,';
-                  edges += '"target": "n'+e.target+'" ,';
-                  edges += '"directed": true ';
-                  //edges += '"name": "'+n.name+'", ';
-                  //edges += '"query": true ';
-                  edges += '},'+"\n";
-  
-                  edges += '"position": {},';
-                  edges += '"group": "edges",';
-                  edges += '"removed": false,';
-                  edges += '"selected": false,';
-                  edges += '"selectable": true, ';
-                  edges += '"locked": false, ';
-                  edges += '"grabbable": true, ';
-                  edges += '"directed": true';
-                  edges += '}'+"\n";
-                }
- 
-               s = '['+"\n";
-               s += nodes;
-               s += ','+"\n";
-               s += edges;
-               s += '\n';
-               s += ']'+"\n";
-               console.log('GNView nodes & edges:  '+s);
-		 
-	      
-            ////s += '}'+"\n";
-            console.log('GNView nodes:  '+s);
-            gn_elements = JSON.parse(s);
-	      //gn_elements  = s;
-            console.log('GnanaView: Fetch issued :');
-              return (gn_elements);
-          });
+		console.log('GNView nodes & edges:  '+s);
+		gn_elements = JSON.parse(s);
+		//gn_elements  = s;
+		console.log('GnanaMetaView: fetch process is completed');
+		return (gn_elements);
+		////////////////////////////////
+		
+	    });
+	} catch(error) {
+	    console.log('Error caught '+error);
+	}
+	
     }
+      ///////////////Zooming
+      var zx, zy;
+/////// Disable nodespace for timebeing
+ //// $('#gnnodespaceid').addEventListener('change', applyNodeSpaceChange);
+ /// $('#gnzoomid').addEventListener('change', applyZoomLevelChange);
 
+  function calculateZoomCenterPoint(){
+            var pan = cy.pan();
+            var zoom = cy.zoom();
 
-      ////////////////////////////////
+      zx = cy.width()/2;
+      zy = cy.height()/2;
+  }
 
       
-  });
+  function   applyZoomLevelChange() {
+
+      var cur_zoomval = document.getElementById('gnzoomid').value;
+      var pan = cy.pan();
+      var zoom = cy.zoom();
+      var zmin = cy.minZoom();
+      var zmax = cy.maxZoom();
+      var zmax_f = parseFloat(zmax).toFixed(2);
+      var zmin_f = parseFloat(zmin).toFixed(2);
+	  
+      var new_zoomlvl = (((zmax_f - zmin_f)*cur_zoomval)/100);
+      
+      console.log('Zoom level is  '+cur_zoomval);
+      console.log('Zoom cur val:'+zoom+'   pan val:'+JSON.stringify(pan, null, 2));
+      console.log('Zoom minval:'+zmin.toFixed(5)+' maxval:'+zmax_f);
+      console.log('Zoom new val:'+new_zoomlvl+' ');
+      //cy.zoomingEnabled(true);
+      
+      calculateZoomCenterPoint();
+      
+      cy.zoom({
+	  level: new_zoomlvl,
+	  renderedPosition: {x: zx, y:zy}
+      });
+      ///cy.viewport({
+	 /// zoom: new_zoomlvl,
+	  ///pan: pan
+      ///});
+      //if (prevLayout) {
+//	  prevLayout.stop();
+  //    }
+
+      
+      ///return applyLayoutFromSelect();  
+  };
+
+
+      
+  function   applyNodeSpaceChange() {
+
+      var nodespaceval = document.getElementById('gnnodespaceid').value;
+      var pan = cy.pan();
+      var zoom = cy.zoom();
+      var zmin = cy.minZoom();
+      var zmax = cy.maxZoom();
+
+      console.log('Nodespace value change '+nodespaceval);
+      console.log('Zoom val:'+zoom+'   pan val:'+JSON.stringify(pan, null, 2));
+      console.log('Zoom minval:'+zmin+' maxval:'+zmax);
+  };
+
+
+      
+ });
+
+    
 })();
 
 // tooltips with jQuery
 $(document).ready(() => $('.tooltip').tooltipster());
+    
