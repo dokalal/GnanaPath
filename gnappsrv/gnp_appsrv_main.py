@@ -353,7 +353,7 @@ def    gnmetaedges_fetch_api():
 
      #### call gnmeta node search api Right now ignore searchqry arg
 
-     res = gndwdb_metarepo_edges_fetch_api(verbose);
+     res = gndwdb_metarepo_edges_fetch_api(srchqry, verbose);
      res_data = re.sub("(\w+):", r'"\1":', res)
 
      if (verbose > 4):
