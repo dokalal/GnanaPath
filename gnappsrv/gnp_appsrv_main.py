@@ -230,7 +230,7 @@ def  gnview_cola_api():
 @login_required
 def   gnsrch_api():
 
-     verbose = 5;
+     verbose = 0;
      srchqry = '';
      print('GNPAppserver: search api ');     
      #### Get srchstring and then pass to search func
@@ -296,7 +296,7 @@ def  gnmetaview_cola_api():
 @login_required
 def   gnmetanodes_fetch_api():
 
-     verbose = 5;
+     verbose = 0;
      print('GNPAppserver: Meta nodes search api ');
      #### Get srchstring and then pass to search func
      if 'srchqry' in request.args:
@@ -334,7 +334,7 @@ def   gnmetanodes_fetch_api():
 @login_required
 def    gnmetaedges_fetch_api():
 
-     verbose = 5;
+     verbose = 0;
      print('GNPAppserver: Meta edges search api ');
      #### Get srchstring and then pass to search func
      if 'srchqry' in request.args:
