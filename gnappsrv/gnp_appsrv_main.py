@@ -4,8 +4,15 @@
 #
 #
 #################################################################
+import os, sys
 
-from gndd_csv_load import gndwdbDataUpload  # to upload Files.
+curentDir = os.getcwd()
+listDir = curentDir.rsplit('/', 1)[0]
+#print(' Test listdir: '+listDir)
+sys.path.append(listDir)
+sys.path.append(listDir + '/gndatadis')
+
+from gndatadis.gndd_csv_load import gndwdbDataUpload  # to upload Files.
 from gnutils.get_config_file import get_config_neo4j_conninfo_file
 from gndwdb.gndwdb_neo4j_fetchops import gndwdb_metarepo_nodes_fetch_api, gndwdb_metarepo_edges_fetch_api
 from gnsearch.gnsrch_sql_srchops import gnsrch_sqlqry_api
@@ -14,8 +21,6 @@ import flask
 from flask import request, jsonify, request, redirect, render_template, flash, url_for, session, Markup, abort
 from werkzeug.utils import secure_filename
 from flask_login import login_required, current_user, login_user, logout_user, LoginManager
-import sys
-import os
 import base64
 import reg_users
 from moz_sql_parser import parse
@@ -27,11 +32,6 @@ from gnp_db_ops import ConnectModel
 
 # Append system path
 
-curentDir = os.getcwd()
-listDir = curentDir.rsplit('/', 1)[0]
-#print(' Test listdir: '+listDir)
-sys.path.append(listDir)
-sys.path.append(listDir + '/gndatadis')
 
 
 def dequote(s):

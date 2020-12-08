@@ -7,13 +7,15 @@
 #   - Other SQL commands syntax are not *yet* supported
 #
 ######################################################################
-
+import os,sys
+curentDir = os.getcwd()
+listDir = curentDir.rsplit('/', 1)[0]
+#print(' Test listdir: '+listDir)
+sys.path.append(listDir)
 
 from gndwdb.gndwdb_neo4j_fetchops import gndwdb_datarepo_edges_fetch_api
 from gnutils.replace_spl_chars import gnutils_filter_json_escval
 from gndwdb.gndwdb_neo4j_conn import gndwdb_neo4j_conn_metarepo, gndwdb_neo4j_conn_datarepo
-import os
-import sys
 from neo4j import GraphDatabase, basic_auth
 from moz_sql_parser import parse
 import json
@@ -23,15 +25,6 @@ import warnings
 
 import re
 warnings.simplefilter('ignore')
-
-
-curentDir = os.getcwd()
-listDir = curentDir.rsplit('/', 1)[0]
-#print(' Test listdir: '+listDir)
-sys.path.append(listDir)
-# print(sys.path);
-
-# Imports required
 
 
 def gnsrch_process_select_convert_cypher(sqlst, verbose):

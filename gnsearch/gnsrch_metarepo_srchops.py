@@ -6,11 +6,12 @@
 #   - Busines rules view
 #
 ##########################################################################
-
+import os, sys
+curentDir = os.getcwd()
+listDir = curentDir.rsplit('/', 1)[0]
+sys.path.append(listDir)
 
 from gndwdb.gndwdb_neo4j_conn import gndwdb_neo4j_conn_metarepo, gndwdb_neo4j_conn_datarepo
-import os
-import sys
 from neo4j import GraphDatabase, basic_auth
 from moz_sql_parser import parse
 import json
@@ -21,15 +22,6 @@ import warnings
 
 import re
 warnings.simplefilter('ignore')
-
-
-curentDir = os.getcwd()
-listDir = curentDir.rsplit('/', 1)[0]
-#print(' Test listdir: '+listDir)
-sys.path.append(listDir)
-# print(sys.path);
-
-# Imports required
 
 
 def gnsrch_metarepo_getnodes(meta_graph_conn, verbose):

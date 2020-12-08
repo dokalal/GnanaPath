@@ -3,13 +3,19 @@
 #    - Fetch nodes and its properties from neo4j
 #    - Fetch edges(relationships) from Neo4j
 ###################################################################
+import os, sys
+
+curentDir = os.getcwd()
+listDir = curentDir.rsplit('/', 1)[0]
+# gndwdbDir=listDir+'/gndwdb'
+if listDir not in sys.path:
+    sys.path.append(listDir)
+
 from gndwdb.gndwdb_neo4j_conn import gndwdb_neo4j_conn_metarepo, gndwdb_neo4j_conn_datarepo
 from gnutils.replace_spl_chars import gnutils_filter_json_escval
-import os
 import csv
 import json
 import psycopg2
-import sys
 import numpy as np
 import neo4j
 import warnings
@@ -17,15 +23,6 @@ import logging
 from neo4j import GraphDatabase
 from neo4j.exceptions import ServiceUnavailable
 
-
-curentDir = os.getcwd()
-listDir = curentDir.rsplit('/', 1)[0]
-# gndwdbDir=listDir+'/gndwdb'
-if listDir not in sys.path:
-    sys.path.append(listDir)
-# if gndwdbDir not in sys.path:
-#    sys.path.append(gndwdbDir)
-# print(sys.path)
 
 
 class gndwdbFetchApp:

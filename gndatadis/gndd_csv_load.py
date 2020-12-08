@@ -1,13 +1,4 @@
-from gndwdb_neo4j_dbops import gndw_metarepo_metanode_add_api, gndw_datarepo_datanode_add_api
-from gnutils.replace_spl_chars import filter_chars
-from gnutils.read_props import LoadConfigUtil
-import csv
-import json
-import pandas as pd
-import neo4j
-import os
-import sys
-
+import os,sys
 curentDir = os.getcwd()
 listDir = curentDir.rsplit('/', 1)[0]
 gndwdbDir = listDir + '/gndwdb'
@@ -15,7 +6,16 @@ if listDir not in sys.path:
     sys.path.append(listDir)
 if gndwdbDir not in sys.path:
     sys.path.append(gndwdbDir)
-print(sys.path)
+
+
+from gndwdb_neo4j_dbops import gndw_metarepo_metanode_add_api, gndw_datarepo_datanode_add_api
+from gnutils.replace_spl_chars import filter_chars
+from gnutils.read_props import LoadConfigUtil
+import csv
+import json
+import pandas as pd
+import neo4j
+
 # if '/home/jovyan/gnanapath' not in sys.path:
 #    sys.path.append('/home/jovyan/gnanapath')
 

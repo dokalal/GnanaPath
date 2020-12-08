@@ -3,24 +3,22 @@
 #    - Add nodes to neo4j
 #    - Add attributes to node to neo4j
 ###################################################################
+import os,sys
+# Append system path
+curentDir = os.getcwd()
+listDir = curentDir.rsplit('/', 1)[0]
+sys.path.append(listDir)
+
 from gnutils.get_config_file import get_config_neo4j_conninfo_file
 from neo4j import GraphDatabase, basic_auth
-import os
 import csv
 import json
-import sys
 import numpy as np
 import neo4j
 import warnings
 import re
 
 warnings.simplefilter('ignore')
-
-
-# Append system path
-curentDir = os.getcwd()
-listDir = curentDir.rsplit('/', 1)[0]
-sys.path.append(listDir)
 
 
 def gndwdb_neo4j_conn_connect(uri, userName, passw, verbose):
