@@ -224,6 +224,8 @@ def user_login():
 
     elif neo4j_conn_check_api()=="Error":
        _srch=False
+       connect=ConnectModel(path)
+       connect._db.truncate()
        flash("Error connecting to neo4j server",'danger')
        return redirect(url_for('connect_server',disp_srch=_srch))
     _srch=True
