@@ -23,7 +23,7 @@ warnings.simplefilter('ignore')
 
 def gndwdb_neo4j_conn_connect(uri, userName, passw, verbose):
 
-    # Database Credentials
+    # Connect to neo4j db server
     try:
         # Connect to the neo4j database server
         graphDB_Driver = GraphDatabase.driver(uri, auth=(userName, passw))
@@ -53,7 +53,7 @@ def gndwdb_neo4j_conn_metarepo(verbose):
     userName = conn_params['userName']
     passw = conn_params['passw']
 
-    # Check db connection
+    # connect to db connection and return graph connection
     graph_conn = gndwdb_neo4j_conn_connect(uri, userName, passw, verbose)
 
     if (verbose > 3):
@@ -84,7 +84,7 @@ def gndwdb_neo4j_conn_datarepo(verbose):
     userName = conn_params['userName']
     passw = conn_params['passw']
 
-    # Check db connection
+    # Connect and return graph connection
     graph_conn = gndwdb_neo4j_conn_connect(uri, userName, passw, verbose)
 
     return graph_conn
@@ -103,7 +103,7 @@ def gndwdb_neo4j_conn_check_api(cfgfile, verbose):
     if (verbose > 3):
         print('gndwdb_neo4j_conn: parsing cfg file:' + cfgfile)
 
-    # with open(os.path.join(JSON_PATH, jfile)) as json_file:
+    ## open connection config file and return connection parameters
     with open(cfgfile) as cfg_jsonf:
         cfg_json = json.load(cfg_jsonf)
 
@@ -112,10 +112,8 @@ def gndwdb_neo4j_conn_check_api(cfgfile, verbose):
 
         def_config = cfg_json['_default']
         nconfig = def_config['1']
-        print(nconfig)
-        # read config list
+        ## read connection config parameter list
         uri = "bolt://" + nconfig['serverIP']
-        ###uri = nconfig['uri'];
         userName = nconfig['username']
         passw = nconfig['password']
         if (verbose > 3):
@@ -130,18 +128,16 @@ def gndwdb_neo4j_conn_check_api(cfgfile, verbose):
             print("Error..")
             return "Error"
         if graph_conn is None:
-            # Unable to connect
+            # Unable to connect to Neo4j server. Return error.
             print('Error! Unable to connect to graph server')
             print("None...")
             return -1
-        #print('Graph Server connected! '+uri);
-        # print(graph_conn);
-        # else:
+        
         if (verbose > 3):
-            # print(graph_conn);
+            ## SUCCESS connect to graph server
             print('gndwdb_neo4j_conn_check_api: ' + uri +
                   ' Connection established successfully')
-        # return -1;
+
         graph_conn.close()
 
         return 0
@@ -149,12 +145,11 @@ def gndwdb_neo4j_conn_check_api(cfgfile, verbose):
 
 def gndwdb_neo4j_parse_config(verbose):
 
-    ###cfgfile = './server_config.json';
+    ### Get connection config file  and parameters
     cfg_file = get_config_neo4j_conninfo_file()
     if (verbose > 3):
         print('gndwdb_neo4j_conn: path for neo4j conn cfg: ' + cfg_file)
 
-    # with open(os.path.join(JSON_PATH, jfile)) as json_file:
     with open(cfg_file) as cfg_jsonf:
         cfg_json = json.load(cfg_jsonf)
         print(cfg_json)
@@ -167,20 +162,7 @@ def gndwdb_neo4j_parse_config(verbose):
 def gndwdb_neo4j_conn_getconfig(verbose):
 
     conn_params = dict()
-    ###cfgfile = './server_config.json';
-    #cfg_file = get_config_neo4j_conninfo_file();
-    # if (verbose > 3):
-    #   print('gndwdb_neo4j_conn: path for neo4j conn cfg: '+cfg_file);
 
-    # with open(os.path.join(JSON_PATH, jfile)) as json_file:
-    # with open(cfg_file) as cfg_jsonf:
-    #    cfg_json = json.load(cfg_jsonf);
-    #    print(cfg_json);
-
-    #    def_config = cfg_json['_default'];
-    #    nconfig = def_config['1'];
-    #    print(nconfig);
-    # read config list
     nconfig = gndwdb_neo4j_parse_config(verbose)
     conn_params['uri'] = "bolt://" + nconfig['serverIP']
     conn_params['userName'] = nconfig['username']
