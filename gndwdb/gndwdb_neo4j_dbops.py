@@ -20,7 +20,7 @@ warnings.simplefilter('ignore')
 
 def gn_neo4j_connect(uri, userName, passw, verbose):
 
-    # Database Credentials
+
 
     try:
         # Connect to the neo4j database server
@@ -38,12 +38,9 @@ def gn_neo4j_connect(uri, userName, passw, verbose):
 
 def gndw_dtval_filter(dataval):
 
-    # if (verbose > 3):
-    #    print('gndw_dataval_filter: Check and add escape char filter to data value');
     datavalstr = str(dataval)
     dataval_s1 = datavalstr.replace("'", "\\'")
     dataval_s2 = dataval_s1.replace('"', '\\"')
-    # dataval_s3 = dataval_s2.replace('\\', '\\\')
 
     dataval_filtered = str(dataval_s2)
     return dataval_filtered
@@ -60,8 +57,6 @@ def gndw_nodelabel_filter(nodename, prefix, verbose):
 
     s = nodename[0]
 
-    # try:
-    # int(nodename)
     if s.isnumeric() is True:
         nodename_filtered = prefix + str(nodename)
 
@@ -69,9 +64,6 @@ def gndw_nodelabel_filter(nodename, prefix, verbose):
         print(
             'gndw_nodelabel_filter: nodename is integer prefix with DN:' +
             nodename_filtered)
-
-    # except ValueError:
-    ## nodename_filterd = nodename;
 
     return nodename_filtered
 
@@ -261,11 +253,10 @@ def gndw_metarepo_metanode_add(graph_conn, nodename, node_attr_list, verbose):
 ########################
 
 def gndw_metarepo_metanode_add_api(node_name, node_attr_list, verbose):
-    # Database Credentials
+    # Main api function to add metanodes 
     ret = 0
 
     # Check db connection
-    #graph_conn  = gn_neo4j_connect(uri, userName, passw,verbose)
     graph_conn = gndwdb_neo4j_conn_metarepo(verbose)
 
     if (graph_conn == ''):
@@ -609,7 +600,6 @@ def add_data_test_api():
         print("add_data_test_api(): Add data node test ")
 
     node_name = 'customer'
-    #node_attr_list =  {'attr1': '1', 'attr2': 'custemail', 'attr3': 'addrline', 'attr4': 'city', 'attr5': 'state', 'attr6': 'country', 'attr7': 'zip', 'attr8': 'custphone'}
 
     node_attr_list = {
         'attr1': 'customerid',
@@ -622,7 +612,6 @@ def add_data_test_api():
         'attr8': 'custphone',
         'attr9': 'customattr9'}
 
-    # 'attr10':'2a\'ttr2'};
     # Add new node
     ret = gndw_metarepo_metanode_add_api(node_name, node_attr_list, verbose)
 
@@ -640,9 +629,7 @@ def add_data_test_api():
         'zip': 2110,
         'custphone': '123-232-2323',
         'customattr9': 'Spl"C'}
-    # , '2a\'ttr2':"Spl' s"};
 
-    #datanode_attr_list2  = {'1at': 'Spl"C', '2at':"Spl' s"}
     gndw_datarepo_datanode_add_api(
         node_name,
         node_attr_list,
