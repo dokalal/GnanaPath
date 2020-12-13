@@ -111,7 +111,10 @@ def upload_file():
             flash('Please upload CSV or JSON file', 'danger')
             return redirect(request.url)
         elif files and allowed_file(files.filename):
-            filename = secure_filename(files.filename)
+            fname = secure_filename(files.filename)
+            file_name,file_ext=fname.split(".")
+            filename= re.sub(r'\W+','',file_name)+f'.{file_ext}'
+            print(filename)
             files.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             gndwdbDataUpload(app.config['UPLOAD_FOLDER'], filename)
 

@@ -15,7 +15,7 @@ import csv
 import json
 import pandas as pd
 import neo4j
-
+import re
 # if '/home/jovyan/gnanapath' not in sys.path:
 #    sys.path.append('/home/jovyan/gnanapath')
 
@@ -60,13 +60,14 @@ class ParseCSV:
         # Usage filter_chars('chartobereplaced', 'withreplacechar', df.col,
         # replace=True)
         df_new = self.df
-        df_new.columns = filter_chars(r"\.", "_", df_new.columns, replace=True)
+        df_new.columns = filter_chars(r'\W+', "_", df_new.columns, replace=True)
+        df_new.columns=df_new.columns.str.strip('_')
+        print(df_new.columns)
         # create a dict containing the column header
         new_col_len = len(df_new.columns)
         #col_dict = {x:df_new.columns[x] for x in range(new_col_len)}
         self.col_dict = {
             'attr' + str(x + 1): df_new.columns[x] for x in range(new_col_len)}
-
         # create data dict
         #row_dict =[dict(df_new.iloc[tmp,:]) for tmp in range(df_new.shape[0])]
         # return col_dict, row_dict[0]
@@ -136,8 +137,6 @@ class gndwdbCall:
 def gndwdbDataUpload(filePath, fileName):
     file_name = fileName
     file_path = os.path.join(filePath, file_name)
-    print(file_name)
-    print(file_path)
     file_name, file_ext = file_name.split(".")
     p = ParseCSV(path=file_path, type=file_ext)
     p.ret_header_dict()
@@ -177,7 +176,3 @@ def gndwdbData_check():
         gndb.gndwdbDataNodeCall()
 
 
-if __name__ == "__main__":
-    filePath = "/home/jovyan/GnanaPath/gnappsrv/uploads"
-    fileName = "product_sample.csv"
-    gndwdbDataUpload(filePath, fileName)
