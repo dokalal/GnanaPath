@@ -126,8 +126,11 @@ def neo4j_conn_check_api():
     verbose = 0
     cfg_file = get_config_neo4j_conninfo_file()
     if not cfg_file == "Error":
-        res = gndwdb_neo4j_conn_check_api(cfg_file, verbose)
-        return res
+        try:
+            res = gndwdb_neo4j_conn_check_api(cfg_file, verbose)
+            return res
+        except:
+            return "Error"   
     return "NoFile"
 
 
@@ -243,7 +246,7 @@ def user_login():
         flash("Please input the server config details", 'success')
         return redirect(url_for('connect_server', disp_srch=_srch))
 
-    elif neo4j_conn_check_api() == "Error":
+    if neo4j_conn_check_api() == "Error":
         _srch = False
         connect = ConnectModel(path)
         connect._db.truncate()
