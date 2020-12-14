@@ -9,7 +9,12 @@
     let toText = obj => obj.text();
 
     let cy;
-
+    let hdrlbl = document.getElementById('gnhdr_lbl');
+    let selstatus_lbl = document.getElementById('selstatuslbl');
+    let gnnode_selid = document.getElementById("gnnode_selid");
+    let cy_nodes;
+    let cy_edges;
+      
     let $stylesheet = "style.json";
     let getStylesheet = name => {
       let convert = res => name.match(/[.]json$/) ? toJson(res) : toText(res);
@@ -29,7 +34,7 @@
 
 
       
-    let $dataset = "jdk_dependency.json";
+    let $dataset = "";
     let getDataset = name => fetch(`datasets/${name}`).then( toJson );
     let getGnDataset = name => gnFetchData();
       
@@ -41,6 +46,8 @@
       // replace eles
       cy.elements().remove();
       cy.add( dataset );
+      //selstatus_lbl.innerHTML = 'Data Upload Complete.';
+      hdrlbl.innerHTML = 'Total Nodes:'+cy_nodes+' Total Edges:'+cy_edges+'';	
     }
       
     let applyDatasetFromSelect = () => 
@@ -80,7 +87,9 @@
       }
     };
       
-    console.log('View: Init called');  
+    console.log('View: Init called');
+    gnFetchMetaNodes();
+      
     let prevLayout;
     let getLayout = name => Promise.resolve( layouts[ name ] );
     let applyLayout = layout => {
@@ -171,15 +180,25 @@
       
     //////////////////////////////////
     $('#srchbtn').addEventListener('click', applyDatasetChange);
-      
+
+
     function  gnFetchData() {
 
         //var srchstr = "SELECT * from customer;";
 	///var srv = 'http://45.79.206.248:5050';	
 	///var url = '/static/cola/js/product.json';
-	var srchstr = document.getElementById('srchid').value;
-	var stlbl = document.getElementById('statuslbl');
-        var errlbl = document.getElementById('errorlbl');
+	//var srchstr = document.getElementById('srchid').value;
+	var srchstr;
+	///var gnnode_sel = document.getElementById('gnnode_selid').value;
+	var gnnode_sel = gnnode_selid.value;
+	var stlbl = document.getElementById('selstatuslbl');
+        var errlbl = document.getElementById('selerrorlbl');
+	///var hdrlbl = document.getElementById('gnhdr_lbl');
+
+        if (gnnode_sel == "select")
+	    srchstr = "";
+        else
+	    srchstr = "SELECT * from "+gnnode_sel;
 	
 	console.log('GNFetchData View: sql txt srch '+srchstr);
 	var nodes_url = "/api/v1/metanodes?srchqry='"+srchstr+"'";
@@ -191,15 +210,17 @@
 	    'Content-Type': 'text/plain',
 	    'Access-Control-Allow-Origin' : '*'
 	});
-	
-	///console.log('GNView: Fetch data1 ');
+
+	hdrlbl.innerHTML ="Loading data from network";
+	cy_nodes = 0;
+	cy_edges = 0;
+
 	try {
    	   return fetch(dataedges_url, { method: 'GET', headers: myHeaders })
-	////	    fetch(edges_url, { method: 'GET',  headers: myHeaders })
 	
             .then (response => response.json())
             .then (data => {
-             //console.log('GNView: Fetch complete ');
+                //console.log('GNView: Fetch complete ');
 		//console.log('GNView: data:'+JSON.stringify(data, null,3));
 		var status = data.status;
 		var statusmsg = data.statusmsg;
@@ -218,6 +239,8 @@
 		///s = '{'+"\n";
 		//nodes += ' '+"\n";
 		console.log('GNView: fetch complete len:'+nodelen);
+		cy_nodes = nodelen;
+		
 		for (i=0; i < nodelen; i++) {
 		    
                     if ( i > 0)
@@ -259,6 +282,7 @@
 		///s = '{'+"\n";
 		///edges += '['+"\n";
 		//console.log('GNView: fetch Edges complete len:'+nodelen);
+		cy_edges = nodelen;
 		for (i=0; i < nodelen; i++) {	  
 		    if ( i > 0)
 			edges += ","+"\n";
@@ -303,14 +327,71 @@
 		gn_elements = JSON.parse(s);
 		//gn_elements  = s;
 		console.log('GnanaMetaView: fetch process is completed');
+		hdrlbl.innerHTML = "Network data fetched. Loading Visualization..";
 		return (gn_elements);
 		////////////////////////////////
 		
 	    });
 	} catch(error) {
+	    hdrlbl.innerHTML = 'Network error fetching data';
 	    console.log('Error caught '+error);
 	}
 	
+    }
+
+    function  gnFetchMetaNodes() {
+        var nodes_url = "/api/v1/metaedges";
+        var metanodes;
+
+	var gnHeaders = new Headers({
+            'Content-Type': 'text/plain',
+            'Access-Control-Allow-Origin' : '*'
+        });
+
+
+	try {
+         
+	     return fetch(nodes_url, { method: 'GET', headers: gnHeaders })
+               .then (response => response.json())
+                .then (data => {
+                     console.log('GNView: Fetch gnmeta nodes complete ');
+                     console.log('GNView: data:'+JSON.stringify(data, null,3));
+                    var status = data.status;
+                    var nodelen;
+		    if (status == "ERROR") {
+			 console.log('GNView: Error status ');
+                         errlbl.innerHTML = "Error getting node data from server";
+                         ///s = '[]';
+                         ///gn_elements = JSON.parse(s);
+                        return;
+		    }
+		    
+		    ///gnnode_selid.empty();
+		    ///$("#gnnode_selid").empty();
+		    ///$("#gnnode_selid").html("");
+		    nodelen = data.nodes.length;
+		    for (i=0; i < nodelen; i++) {
+                        n = data.nodes[i];
+			if (n.type == "TableMetaNode") {
+                            /// Add to select options
+			    console.log('gnmetaview: adding node '+n.name);
+                            ///gnnode_selid.append($("<option></option>").attr("value", n.name).text(n.value));
+			    //$('#gnnode_selid').append("<option>" + n.name + "</option>");
+			    var c = document.createElement("option");
+			    c.text = n.name;
+			    gnnode_selid.options.add(c,1);
+			}
+		    }
+		});
+
+	} catch(error) {
+            hdrlbl.innerHTML = 'Network error fetching data';
+            console.log('Error caught '+error);
+        }
+
+	
+
+
     }
       ///////////////Zooming
       var zx, zy;
