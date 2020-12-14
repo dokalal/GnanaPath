@@ -68,6 +68,31 @@ class gndwdbFetchApp:
 
         return njson
 
+    def find_node_count_by_metanode(self, metanode, verbose):
+
+        with self.driver.session() as session:
+            query = (
+                    "MATCH (n {metanode:\"" + metanode +
+                    "\"}) "
+                    " RETURN COUNT(n)"
+                )
+
+            result = session.run(query)
+
+            nodecount = 0
+            for record in result:
+                nodecount = record['COUNT(n)']
+                if (verbose > 3):
+                    print(
+                        "gndwdbFetchApp: Found node: {record}".format(
+                            record=record))
+
+                if (verbose > 4):
+                    print(record)
+                    
+            return nodecount    
+
+    
     def find_node_by_id(self, node_id, verbose):
 
         with self.driver.session() as session:
@@ -107,12 +132,6 @@ class gndwdbFetchApp:
         )
 
         result = tx.run(query, id=id)
-        #njson = '';
-
-        # for record in result:
-        #    node = record['p'];
-        #    nodedict = convert_node_rec_dict(node, verbose);
-
         return result
 
     def convert_node_rec_dict(self, node, verbose):
@@ -133,7 +152,7 @@ class gndwdbFetchApp:
             print('GNdwFetchApp: convert node label ' + str(nodelabel))
 
         njson += '  "id": "' + str(nodeid) + '" ,' + "\n"
-        njson += '  "nodetype": "' + str(nodelabel) + '" '
+        njson += '  "nodetype": "' + gnutils_filter_json_escval(nodelabel) + '" '
 
         ndict['id'] = nodeid
         ndict['nodename'] = nodelabel
@@ -224,7 +243,6 @@ class gndwdbFetchApp:
             print(relnode)
 
         rdict = {}
-        ###relnode = record["r"];
         reltype = relnode.type
         relid = relnode.id
 
@@ -258,8 +276,6 @@ class gndwdbFetchApp:
 
         sdict = self.convert_node_rec_dict(snode, verbose)
         tdict = self.convert_node_rec_dict(tnode, verbose)
-        ###sdict = self.find_node_by_id(snode.id, verbose);
-        ###tdict = self.find_node_by_id(tnode.id, verbose);
 
         rdict['source'] = sdict
         rdict['target'] = tdict
@@ -289,22 +305,23 @@ class gndwdbFetchApp:
 
         return (rdict)
 
-    def find_edges_nodes_return_rec(self, nodename, rel_type, nlimit, verbose):
+    def find_edges_nodes_return_rec(self, nlist, rel_type, nlimit, verbose):
 
         with self.driver.session() as session:
-            #rjson = " { "+"\n";
             rel_list = {}
             nodelist = {}
             nnum = 0
             nedges = 0
             nnodes = 0
-
-            if (nodename):
+            
+            if (nlist):
                 query = (
-                    "MATCH (n {name:\"" + nodename +
+                    "MATCH (n {name:\"" + nlist +
                     "\"})-[r:" + rel_type + "]->(t) "
                     " RETURN n,r,t LIMIT " + str(nlimit) + " "
                 )
+                if (verbose > 3):
+                    print('find_edges_nodes_return_rec: processing cql '+str(query))
             else:
                 query = (
                     "MATCH ()-[r:" + rel_type + "]->() "
@@ -495,6 +512,38 @@ def gndwdb_datarepo_edges_fetch_api(verbose):
 
     fetchApp.close()
     return rjson
+
+def gndwdb_datarepo_edges_fetch_bynodelist_api(nodelist, verbose):
+
+    graph_connp = gndwdb_neo4j_conn_datarepo(verbose)
+
+    if (graph_connp == ''):
+        if (verbose > 3):
+            print('gndwdb_metarepo_edges_fetch_api: Unable to connect to db server')
+        rjson = '{' + "\n"
+        rjson += '"status": "ERROR",' + "\n"
+        rjson += '"statusmsg": "Unable to connect db server",'
+        rjson += '"edges":[] ,' + "\n"
+        rjson += '"nodes":[] ' + "\n"
+        rjson += '}' + "\n"
+        return rjson
+
+    fetchApp = gndwdbFetchApp(graph_connp)
+    rel_type = "IS"
+    nodename = ''
+    nlimit = 2000
+
+    if (verbose > 4):
+        print('gndwdb_datarepo_fetch_bynodelist: processing nodelist ');
+        print(nodelist);
+        
+    rjson = fetchApp.find_edges_nodes_return_rec(
+        nodelist, rel_type, nlimit, verbose)
+
+
+    fetchApp.close()
+    return rjson
+
 
 
 if __name__ == "__main__":
