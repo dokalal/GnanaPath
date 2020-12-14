@@ -104,20 +104,29 @@
  <div  class="content-section">
    <hr />
   <h5>Gnana Search</h5>
-
+  <label id="gnhdr_lbl"></label>
   <div id="cy" class="cymain">
   </div>
 
   <div class="cytools">
+    <h5>Select Nodes </h5>
+    <p> Select metanode and its datanodes to view </p>
+    <select id="gnnode_selid" name="gnnode_selid">
+      <option value="select">Select Node</option>
+    </select>
+    <button id="srchbtn">View</button>
+    <label id="selstatuslbl"></label>
+    <label id="selerrlbl" style="color:red"></labebl>
+    <hr>
 
-    <h5>Search Panel</h5>
+ <!--   <h5>Search Panel</h5>
     <p>Please enter SQL search string ex: SELECT * from customer </p>
     <input id="srchid" type="text" />
     <button id="srchbtn">Search</button>
     <label id="statuslbl"></label>
     <label id="errorlbl" style="color:red"></label>
     <hr>
-    
+   --> 
    <!-- <h6>Zoom View</h6>
 
       <div class="slidecontainer">
