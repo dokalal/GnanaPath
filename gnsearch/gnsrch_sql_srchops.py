@@ -13,7 +13,7 @@ listDir = curentDir.rsplit('/', 1)[0]
 #print(' Test listdir: '+listDir)
 sys.path.append(listDir)
 
-from gndwdb.gndwdb_neo4j_fetchops import gndwdb_datarepo_edges_fetch_api
+from gndwdb.gndwdb_neo4j_fetchops import gndwdb_datarepo_edges_fetch_api, gndwdb_datarepo_edges_fetch_bynodelist_api
 from gnutils.replace_spl_chars import gnutils_filter_json_escval
 from gndwdb.gndwdb_neo4j_conn import gndwdb_neo4j_conn_metarepo, gndwdb_neo4j_conn_datarepo
 from neo4j import GraphDatabase, basic_auth
@@ -84,14 +84,8 @@ def gnsrch_process_sqlstr(sqlstr, meta_graph_conn,
         nlen = 0
         rjson = '{' + "\n"
         rjson += ' nodes: [' + "\n"
-        ###rjson += ' {'+"\n";
 
         for n in nodes:
-            ####
-            #rjson += 'data: {';
-            #rjson += '  id:'+n["name"]+'';
-            #rjson += '}';
-            #print('nodeid-'+str(len)+' name ');
             if (nlen > 0):
                 rjson += ',' + "\n"
             for k in n.keys():
@@ -109,7 +103,6 @@ def gnsrch_process_sqlstr(sqlstr, meta_graph_conn,
                         rjson += '"' + str(p) + '": "' + \
                             gnutils_filter_json_escval(pv) + '"'
 
-                    ##print('nodeid-'+str(len)+' key:'+str(p)+' val:'+str(pv));
                     a = a + 1
                 if (a > 0):
                     rjson += "\n"
@@ -117,7 +110,7 @@ def gnsrch_process_sqlstr(sqlstr, meta_graph_conn,
             nlen += 1
         if (nlen > 0):
             rjson += "\n"
-        ####rjson += ' }'+"\n";
+
         rjson += ']' + "\n"
         rjson += '}' + "\n"
         return rjson
@@ -137,13 +130,32 @@ def gnsrch_sqlqry_api(sqlstr, verbose):
     if (verbose > 3):
         print('gnrch_sqlqry_api: Starting search api ' + sqlstr)
 
-    meta_graph_conn = gndwdb_neo4j_conn_metarepo(verbose)
-    data_graph_conn = gndwdb_neo4j_conn_datarepo(verbose)
+    ##meta_graph_conn = gndwdb_neo4j_conn_metarepo(verbose)
+    ##data_graph_conn = gndwdb_neo4j_conn_datarepo(verbose)
 
-    ret = gnsrch_process_sqlstr(sqlstr, meta_graph_conn,
-                                data_graph_conn, verbose)
+    ###ret = gnsrch_process_sqlstr(sqlstr, meta_graph_conn,
+    ##                            data_graph_conn, verbose)
 
-    return ret
+    jsql = parse(sqlstr);
+    selstr = "select"
+
+    if (selstr in jsql):
+        if (verbose > 3):
+            print('gnsrch_sql_srch_api: Processing select ')
+
+        attrtlist = jsql[selstr]
+        entlist = jsql["from"]
+
+        if (verbose > 3):
+            print('gnsrch_sql_srch_api: entity list is ')
+            print(entlist);
+            
+        rjson = gndwdb_datarepo_edges_fetch_bynodelist_api(entlist, verbose)
+            
+        if (verbose > 4):
+            print('gnsrch_sql_srch_api: process nodelist '+rjson)
+            
+    return rjson
 
 
 def gnsrch_datarepo_fetch_nodes_api(verbose):
