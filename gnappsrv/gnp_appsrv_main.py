@@ -281,12 +281,6 @@ def gnsrch_api():
         srchqry_filtered = dequote(srchqry)
 
         slen = len(srchqry_filtered)
-        # if (slen == 0):
-        #    res_data = '';
-
-        #    if (verbose > 3):
-        #        print('GNPAppServer: Input search qry string is empty');
-        #    return res_data;
 
         # Let us invoke gnsrch api
         if (verbose > 3):
@@ -295,7 +289,7 @@ def gnsrch_api():
         # call gnsearch api
         res = gnsrch_sqlqry_api(srchqry_filtered, verbose)
         res_data = re.sub(r"(\w+):", r'"\1":', res)
-
+    
         if (verbose > 4):
             print('GNPAppSrch:   res : ' + res)
 
@@ -305,7 +299,7 @@ def gnsrch_api():
         }
 
         # return json.JSONDecoder(object_pairs_hook=OrderedDict).decode()
-        return res_data
+        return res;
 
         # return  json.dumps(rjson, indent=4, separators=(',', ': '))
 
