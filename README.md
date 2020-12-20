@@ -72,6 +72,29 @@ You should see log like:
  Default user/passwd  (gnadmin/gnana)
  
  
+ <h4> Connecting to backend Neo4j Server </h4>
+You will have connect to backend neo4j server to store data.
+
+After you login into GnanaPath UI, 
+ 
+- click connect
+
+- Enter Neo4j Server IP and Bolt Protocol port(ex: 7687)
+   Ex:  XXX.XXX.XXX.XXX:7687
+   
+- Enter username and password
+Click connect, if you connection is successful you will see success status message
+
+
+***Now you are ready to upload the data*****
+
+ <h4> Upload data </h4>
+ 
+ Currently, we support simple file upload using csv or json. we *donot* yet support nested json files.
+ 
+ - Click Upload on top menu options on GnanaPath UI
+ 
+ - 
  
  
 
