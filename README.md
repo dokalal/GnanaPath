@@ -49,6 +49,33 @@ Please refer link to install neo4j as container https://github.com/neo4j/docker-
 get Bolt port (ex: 7687) and user credentials (user/passw) for GnanaUI to connect
 
 
+<h4> Starting GnanaApp Server </h4>
+Now you are ready to run GnanaApp Server. Goto gnana clone repo directory
+
+cd gnpappsrv
+
+python gnpappsrv
+
+You should see log like:
+* Serving Flask app "gnp_appsrv_main" (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: on
+ * Running on http://0.0.0.0:5050/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: XXX-XXX-XXX
+ 
+ Now open browser go to  http://<jupyternotebook-ip>:5050
+ You can GnanaPath UI and click login
+ Default user/passwd  (gnadmin/gnana)
+ 
+ 
+ 
+ 
+
+
 
 
 
