@@ -26,7 +26,7 @@ We built using jupyter/pyspark notebook.
 
 - If you choose docker container for notebook, then make sure you port map for 5050 for Gnana UI
  Example:
-  \# docker run -d -p 8888:8888  #-p 5050:5050  --name jupyntbook  jupyter/pyspark
+  \# docker run -d -p 8888:8888  <b>-p 5050:5050</b>  --name jupyntbook  jupyter/pyspark-notebook
 
 - Open terminal on the notebook and git clone GnanaPath repo
 
