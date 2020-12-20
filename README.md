@@ -15,11 +15,12 @@ It is built using following
 
 The framework can be execute as part of docker containers
 
-<h2>This project is still under construction Please check for update on this page </h2>
+<h2>This project is still under construction Please check for updates on this page </h2>
 
 
 <h3> Using Gnanapath</h3>
 
+<h4> Setup GnanaPath </h4>
 We built using jupyter/pyspark notebook.  
 
 - Download and install jupyter/pyspark notebook or get docker container from https://hub.docker.com/r/jupyter/pyspark-notebook/
@@ -34,7 +35,23 @@ We built using jupyter/pyspark notebook.
 
 -  Install python related modules for this project
 
-# pip install -r gnpappsrv/requirements.txt
+\# pip install -r gnpappsrv/requirements.txt
 
 
-- Start
+<h4> Neo4j Setup and Server Credentials </h4>
+We are neo4j as backend graph engine to store nodes and edges. We use python-bolt driver to update neo4j engine.
+If you already have neo4j installed and up and running, then you can skip this step.
+
+We have used community edition of neo4j container to setup. For other options please visit http://neo4j.com
+
+Please refer link to install neo4j as container https://github.com/neo4j/docker-neo4j
+
+get Bolt port (ex: 7687) and user credentials (user/passw) for GnanaUI to connect
+
+
+
+
+
+
+
+
