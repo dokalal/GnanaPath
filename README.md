@@ -94,7 +94,25 @@ Click connect, if you connection is successful you will see success status messa
  
  - Click Upload on top menu options on GnanaPath UI
  
- - 
+ - Upload file from local file path
+ 
+ - After upload is complete, you will see upload success message
+ 
+ *note*  currently csv file header line (line 1) is treated as meta data header.
+ 
+ <h4> View the data in graph </h4>
+ 
+ Click  MetaView on top men option to view meta nodes created from file upload and SearchView to view data nodes.
+ 
+ 
+ <h2> ToDo list </h2>
+
+We have lot of todo list for this project and will be updating upcoming features.
+
+
+
+
+- GnanaPath Team
  
  
 
