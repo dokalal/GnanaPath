@@ -20,6 +20,8 @@ The framework can be execute as part of docker containers
 
 <h3> Using Gnanapath</h3>
 
+<h5> We are working on creating a Dockerfile to build your own docker image. Please check this section for update </h5>
+
 <h4> Setup GnanaPath </h4>
 We built using jupyter/pyspark notebook.  
 
@@ -107,7 +109,9 @@ Click connect, if you connection is successful you will see success status messa
  
  <h2> ToDo list </h2>
 
-We have lot of todo list for this project and will be updating upcoming features.
+We have lot of todo list for this project and will be updating in this section.
+
+- pyspark-based graph engine
 
 
 
