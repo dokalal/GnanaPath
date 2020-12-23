@@ -10,7 +10,6 @@ from neo4j import GraphDatabase, basic_auth
 import os
 import csv
 import json
-import psycopg2
 import sys
 import numpy as np
 import neo4j

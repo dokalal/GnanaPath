@@ -15,7 +15,6 @@ from gndwdb.gndwdb_neo4j_conn import gndwdb_neo4j_conn_metarepo, gndwdb_neo4j_co
 from gnutils.replace_spl_chars import gnutils_filter_json_escval
 import csv
 import json
-import psycopg2
 import numpy as np
 import neo4j
 import warnings
