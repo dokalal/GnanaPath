@@ -47,7 +47,8 @@ class ParseCSV:
                 raise ValueException('Missing file path')
 
             if self.file_type == 'json':
-                self.df = self.read_json_url()
+                self.df = self.read_json_file()
+                #self.df = pd.read_json(self.file_path)
             elif self.file_type == 'csv':
                 self.df = pd.read_csv(self.file_path, skiprows=0)
             else:
@@ -56,43 +57,60 @@ class ParseCSV:
     # return header dict
 
     def ret_header_dict(self):
-        # Call the decorated function filter_chars present in the util package
-        # Usage filter_chars('chartobereplaced', 'withreplacechar', df.col,
-        # replace=True)
-        df_new = self.df
-        df_new.columns = filter_chars(r'\W+', "_", df_new.columns, replace=True)
-        df_new.columns=df_new.columns.str.strip('_')
-        print(df_new.columns)
-        # create a dict containing the column header
-        new_col_len = len(df_new.columns)
-        #col_dict = {x:df_new.columns[x] for x in range(new_col_len)}
-        self.col_dict = {
-            'attr' + str(x + 1): df_new.columns[x] for x in range(new_col_len)}
-        # create data dict
-        #row_dict =[dict(df_new.iloc[tmp,:]) for tmp in range(df_new.shape[0])]
-        # return col_dict, row_dict[0]
-
-    # Read Json from a url
-    def read_json_url(self):
-        import urllib.request
         try:
-            operUrl = urllib.request.urlopen(self.file_path)
-            data = operUrl.read()
-            jsonData = json.loads(data)
-            df = pd.json_normalize(jsonData)
-            return df
+            # Call the decorated function filter_chars present in the util package
+            # Usage filter_chars('chartobereplaced', 'withreplacechar', df.col,
+            # replace=True)
+            df_new = self.df
+            df_new.columns = filter_chars(r'\W+', "_", df_new.columns, replace=True)
+            df_new.columns=df_new.columns.str.strip('_')
+            print(df_new.columns)
+            # create a dict containing the column header
+            new_col_len = len(df_new.columns)
+            #col_dict = {x:df_new.columns[x] for x in range(new_col_len)}
+            self.col_dict = {
+            'attr' + str(x + 1): df_new.columns[x] for x in range(new_col_len)}
+            
         except Exception as e:
-            print("Error reading url data", operUrl.getcode())
+            print("Error in ret_header_dict: ", e)
+        
+    # Read Json from a url
+    def read_json_file(self):
+        try:
+            df = pd.read_json(self.file_path)
+            df_len=len(df.columns)
+            print(df_len)
+            header =df.iloc[0]
+            col_exclude = [c for c in range(df_len) if type(header[c])==list]
+            print(col_exclude)
+            df2=df.drop(df.columns[col_exclude],axis=1)
+            return df2
+        
+        except Exception as e:
+            print("Error reading Json data", e)        
+        
+    # Read Json from a url
+#    def read_json_url(self):
+#        import urllib.request
+#        try:
+#            operUrl = urllib.request.urlopen(self.file_path)
+#            data = operUrl.read()
+#            jsonData = json.loads(data)
+#            df = pd.json_normalize(jsonData)
+#            return df
+#        except Exception as e:
+#            print("Error reading url data", operUrl.getcode())
 
     # Drop columns if the json data has list type, process later for further flatenning
-#     def drop_columns(self, df):
-#         df_len=len(df.columns)
-#         print(df_len)
-#         header =df.iloc[0]
-#         col_exclude = [c for c in range(df_len) if type(header[c])==list]
-#         print(col_exclude)
-#         df2=df.drop(df.columns[col_exclude],axis=1)
-#         return df2
+    def drop_columns(self):
+        df = self.df   
+        df_len=len(df.columns)
+        print(df_len)
+        header =df.iloc[0]
+        col_exclude = [c for c in range(df_len) if type(header[c])==list]
+        print(col_exclude)
+        df2=df.drop(df.columns[col_exclude],axis=1)
+        return df2
 
 # Class to read CSV file
 
