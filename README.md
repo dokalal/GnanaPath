@@ -21,8 +21,29 @@ The framework can be execute as part of docker containers
 <h3> Using Gnanapath</h3>
 
 <h5> We are working on creating a Dockerfile to build your own docker image. Please check this section for update </h5>
+<h4> Setup using Dockerfile </h4>
 
-<h4> Setup GnanaPath </h4>
+After checking out repo. Go to the local repo directory
+cd GnanaPath
+
+# run docker build
+#docker build -t gnpath .
+
+After the docker image is created run the image
+
+#docker run -d -p 5050:5050 --name gnpath_server gnpath:latest
+
+After that open browser http://<dockerhostip>:5050
+
+Login/passwd: gnadmin/gnana
+
+ You can continue from "Connecting to backend Neo4j Server" section below
+
+ 
+
+
+
+<h4> Setup GnanaPath Manually</h4>
 We built using jupyter/pyspark notebook.  
 
 - Download and install jupyter/pyspark notebook or get docker container from https://hub.docker.com/r/jupyter/pyspark-notebook/
