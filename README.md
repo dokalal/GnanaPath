@@ -20,14 +20,13 @@ The framework can be execute as part of docker containers
 
 <h3> Using Gnanapath</h3>
 
-<h5> We are working on creating a Dockerfile to build your own docker image. Please check this section for update </h5>
 <h4> Setup using Dockerfile </h4>
 
 After checking out repo. Go to the local repo directory
 cd GnanaPath
 
-# run docker build
-#docker build -t gnpath .
+\# run docker build
+\# docker build -t gnpath .
 
 After the docker image is created run the image
 
