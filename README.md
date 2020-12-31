@@ -7,15 +7,15 @@ The framework has  visualization of metadata nodes and datanodes.
 
 It is built using following 
 
-- python-spark
+- pyspark
 - cytoscape-js
 - jupyter notebook
 - backend graph engine is using neo4j 
-- python flask-based ui
+- python flask
 
 The framework can be execute as part of docker containers
 
-<h2>This project is still under construction Please check for updates on this page </h2>
+<h2>This project is still under construction. Please check for updates on this page </h2>
 
 
 <h3> Using Gnanapath</h3>
